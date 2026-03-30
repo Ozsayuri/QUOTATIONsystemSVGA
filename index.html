@@ -2,6 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>SVGA Quotation System - Staff Access</title>
+    <style>
+        /* --- DITO ANG STYLE NG LOGIN OVERLAY --- */
+        #loginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* DITO ANG FIX: 'white' background + 'contain' para hindi putol ang logo */
+    background: #FFFFFF url('svgalogo.png') no-repeat center center;
+    background-size: contain; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 350px;
+            text-align: center;
+            backdrop-filter: blur(5px); /* Optional: Blur effect sa likod ng box */
+        }
+
+        .login-box h2 {
+            color: #d32f2f;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #d32f2f;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .login-box button:hover {
+            background: #b71c1c;
+        }
+
+        /* --- EXISTING STYLES MO SA QUOTATION SYSTEM --- */
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
+        .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
+        .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
+        /* ... (The rest of your CSS stays the same) ... */
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2>SVGA QOUTATION SYSTEMS</h2>
+        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter staff credentials</p>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="checkLogin()">LOG IN</button>
+        <p id="errMsg" style="color: #d32f2f; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;">
+            ⚠️ Access Denied. Check credentials.
+        </p>
+    </div>
+</div>
+
+<script>
+    function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+
+        // EDIT MO DITO ANG USERNAME AT PASSWORD
+        if(u === "admin" && p === "svga2026") { 
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            document.getElementById('errMsg').style.display = 'block';
+        }
+    }
+
+    // Allow login using 'Enter' key
+    window.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) { checkLogin(); }
+    });
+</script>
+
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>SVGA Quotation System - SRP & Cash Price</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
@@ -722,13 +834,6 @@
                 <div class="item-info">MICROSOFT  WIN 11 PRO 64 BIT FQC-10529</div>
             </label>
             <div class="item-price">3,250</div>
-        </div>
-		<div class="item-row">
-            <label>
-                <input type="checkbox" data-name="MICROSOFT  WIN 11 PRO 64 BIT " data-price="6800" onchange="updateQuote()">
-                <div class="item-info">MICROSOFT  WIN 11 PRO 64 BIT</div>
-            </label>
-            <div class="item-price">6,800</div>
         </div>
 		<h3>MS OFFICE PRO PLUS 2021</h3>
 		<div class="item-row">
