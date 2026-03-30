@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVGA Quotation System - SRP & Cash Price</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
+        
+        /* Left Side: Controls */
+        .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
+        
+        /* Right Side: Print Preview */
+        .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
+        
+        h2 { color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 5px; margin-top: 0; font-size: 18px; }
+        h3 { background: #f8f8f8; padding: 8px; font-size: 13px; border-left: 4px solid #d32f2f; margin: 10px 0 5px 0; }
+
+        .client-inputs input { width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        /* --- ITO YUNG FIX PARA SA PRICE SA GILID --- */
+        .item-row { 
+            display: flex; 
+            align-items: center; 
+            padding: 6px; 
+            border-bottom: 1px solid #eee; 
+            cursor: pointer; 
+            justify-content: space-between; /* Itutulak nito yung price sa dulo */
+        }
+        .item-row:hover { background: #f9f9f9; }
+        
+        /* Label wrapper para magkasama yung checkbox at pangalan sa kaliwa */
+        .item-row label {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+
+        .item-row input { margin-right: 12px; transform: scale(1.1); }
+        .item-info { font-size: 13px; }
+        .item-price { font-weight: bold; color: #2e7d32; font-size: 13px; margin-left: auto; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; font-size: 14px; }
+        th { background-color: #f2f2f2; }
+
+        .total-box { margin-top: 20px; text-align: right; font-size: 1.4em; font-weight: bold; border-top: 2px solid #d32f2f; padding-top: 10px; line-height: 1.6; }
+        .srp-label { color: #555; font-size: 0.9em; }
+        .cash-label { color: #d32f2f; font-size: 1.1em; }
+        
+        .btn-print { background: #d32f2f; color: white; padding: 15px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; font-weight: bold; }
+        
+        .mode-btn { background: #2e7d32; color: white; padding: 12px; border: none; border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+        .mode-btn.active { background: #1b5e20; box-shadow: inset 0 0 8px rgba(0,0,0,0.4); border: 2px solid #fff; }
+
+        .logo-img { width: 280px; height: auto; }
+
+        @media print {
+            .inventory-panel, .btn-print, .mode-btn, h2 { display: none; }
+            body { background: white; margin: 0; }
+            .main-wrapper { display: block; }
+            .print-panel { width: 100%; box-shadow: none; padding: 0; border: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="inventory-panel">
+        <h2>1. CUSTOMER & SALES INFO</h2>
+        <div class="client-inputs">
+            <input type="text" id="inName" placeholder="Customer Name" oninput="syncInfo()">
+            <input type="text" id="inAddress" placeholder="Address" oninput="syncInfo()">
+            <input type="text" id="inContact" placeholder="Customer Contact Number" oninput="syncInfo()">
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+            <input type="text" id="inSalesman" placeholder="Salesman Name" oninput="syncInfo()">
+            <input type="text" id="inSalesNo" placeholder="Salesman Contact Number" oninput="syncInfo()">
+        </div>
+
+        <h2>2. PAYMENT MODE</h2>
+        <button id="cashBtn" class="mode-btn" onclick="toggleCash()">SHOW CASH PRICE (5% OFF)</button>
+
+        <h2>3. SELECT COMPONENTS</h2>
+        <h3>PROCESSORS AMD</h3>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 3 3200G MPK" data-price="3725" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 3 3200G MPK</div>
+            </label>
+            <div class="item-price">3,725</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 3 4100" data-price="4450" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 3 4100</div>
+            </label>
+            <div class="item-price">4,450</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 5500GT MPK" data-price="8000" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 5500GT MPK</div>
+            </label>
+            <div class="item-price">8,000</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 5600GT MPK" data-price="9000" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 5600GT MPK</div>
+            </label>
+            <div class="item-price">9,000</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 7500F MPK TRAY W/FAN" data-price="9200" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 7500F MPK TRAY W/FAN</div>
+            </label>
+            <div class="item-price">9,200</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
+            </label>
+            <div class="item-price"></div>
+        </div>
+		
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 7 5700G TRAY" data-price="11950" onchange="updateQuote()">
+                <div class="item-info">AMD Ryzen 7 5700G</div>
+            </label>
+            <div class="item-price">11950</div>
+        </div>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 5600G MPK" data-price="7500" onchange="updateQuote()">
+                <div class="item-info">AMD Ryzen 5 5600G</div>
+            </label>
+            <div class="item-price">7500</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 5500 MPK" data-price="5665" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 5500 MPK</div>
+            </label>
+            <div class="item-price">5665</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 7600" data-price="11615" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 7600</div>
+            </label>
+            <div class="item-price">11,615</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
+            </label>
+            <div class="item-price"></div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 7 5700X TRAY" data-price="9475" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 7 5700X TRAY</div>
+            </label>
+            <div class="item-price">9,475</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 7 7700 TRAY" data-price="12950" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 7 7700 TRAY</div>
+            </label>
+            <div class="item-price">12,950</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 7 7800X3D TRAY" data-price="20665" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 7 7800X3D TRAY</div>
+            </label>
+            <div class="item-price">20,665</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 9 7900" data-price="29900" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 9 7900</div>
+            </label>
+            <div class="item-price">29,900</div>
+        </div>
+		 <h3>INTEL</h3>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="INTEL CORE I3-14100F" data-price="5460" onchange="updateQuote()">
+                <div class="item-info">INTEL CORE I3-14100F</div>
+            </label>
+            <div class="item-price">5,460</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="INTEL CORE I5-14400 TRAY" data-price="17250" onchange="updateQuote()">
+                <div class="item-info">INTEL CORE I5-14400 TRAY</div>
+            </label>
+            <div class="item-price">17,250</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="INTEL CORE I5-14400F" data-price="8475" onchange="updateQuote()">
+                <div class="item-info">INTEL CORE I5-14400F</div>
+            </label>
+            <div class="item-price">8,475</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="INTEL CORE I7-14700 TRAY" data-price="23345" onchange="updateQuote()">
+                <div class="item-info">INTEL CORE I7-14700 TRAY</div>
+            </label>
+            <div class="item-price">23,345</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="INTEL CORE I7-14700K TRAY" data-price="24800" onchange="updateQuote()">
+                <div class="item-info">INTEL CORE I7-14700K TRAY</div>
+            </label>
+            <div class="item-price">24,800</div>
+        </div>
+		<h3>MOTHERBOARDS INTEL LGA1700</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="BIOSTAR H610MHP 2.0" data-price="3950" onchange="updateQuote()">
+                <div class="item-info">BIOSTAR H610MHP 2.0</div>
+            </label>
+            <div class="item-price">3,950</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GA-B760-GAMING-X-AX DDR5" data-price="11600" onchange="updateQuote()">
+                <div class="item-info">GA-B760-GAMING-X-AX DDR5</div>
+            </label>
+            <div class="item-price">11,600</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASUS PRIME H610M-K D4" data-price="5390" onchange="updateQuote()">
+                <div class="item-info">ASUS PRIME H610M-K D4</div>
+            </label>
+            <div class="item-price">5,390</div>
+        </div>
+		
+        <h3>MOTHERBOARDS AM4/AM5</h3>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASROCK A520M-HVS/M.2" data-price="3350" onchange="updateQuote()">
+                <div class="item-info">ASROCK A520M-HVS/M.2</div>
+            </label>
+            <div class="item-price">3,350</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASROCK B550M PRO RS WHITE" data-price="6000" onchange="updateQuote()">
+                <div class="item-info">ASROCK B550M PRO RS WHITE</div>
+            </label>
+            <div class="item-price">6,000</div>
+        </div>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI PRO A620M-E" data-price="5750" onchange="updateQuote()">
+                <div class="item-info">MSI PRO A620M-E</div>
+            </label>
+            <div class="item-price">5,750</div>
+        </div>
+		                 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI B550M PRO-VDH WIFI" data-price="7100" onchange="updateQuote()">
+                <div class="item-info">MSI B550M PRO-VDH WIFI</div>
+            </label>
+            <div class="item-price">7,100</div>
+        </div> 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI B650 GAMING PLUS WIFI" data-price="12950" onchange="updateQuote()">
+                <div class="item-info">MSI B650 GAMING PLUS WIFI</div>
+            </label>
+            <div class="item-price">12,950</div>
+        </div> 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI B450 GAMING PLUS MAX" data-price="5600" onchange="updateQuote()">
+                <div class="item-info">MSI B450 GAMING PLUS MAX</div>
+            </label>
+            <div class="item-price">5,600</div>
+        </div> 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG B550 TOMAHAWK MAX WIFI" data-price="11350" onchange="updateQuote()">
+                <div class="item-info">MSI MAG B550 TOMAHAWK MAX WIFI</div>
+            </label>
+            <div class="item-price">13,350</div>
+        </div> 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GIGABYTE A620M-H" data-price="7980" onchange="updateQuote()">
+                <div class="item-info">GIGABYTE A620M-H</div>
+            </label>
+            <div class="item-price">7,980</div>
+        </div> 
+		
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASROCK B650M PG LIGHTNING WIFI" data-price="9450" onchange="updateQuote()">
+                <div class="item-info">ASROCK B650M PG LIGHTNING WIFI</div>
+            </label>
+            <div class="item-price">9,450</div>
+        </div> 
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GIGABYTE B850M-FORCE-WF6E 2 DIM" data-price="9200" onchange="updateQuote()">
+                <div class="item-info">GIGABYTE B850M-FORCE-WF6E 2 DIM</div>
+            </label>
+            <div class="item-price">9,200</div>
+        </div> 
+        <h3>MEMORY DIMM</h3>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
+            </label>
+            <div class="item-price"></div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VULCAN 32GB 6000 DDR5 2 x 16GB" data-price="33650" onchange="updateQuote()">
+                <div class="item-info">VULCAN 32GB 6000 DDR5 2 x 16GB</div>
+            </label>
+            <div class="item-price">33,650</div>
+        </div>
+         <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TEAM GROUP 32GB DELTA RGB 32GB 3200 2x16GB BLACK" data-price="15590" onchange="updateQuote()">
+                <div class="item-info">TEAM GROUP 32GB DELTA RGB 32GB 3200 2x16GB BLACK</div>
+            </label>
+            <div class="item-price">15,590</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TEAM GROUP 16GB DELTA RGB 16GB 3200 DDR4 2x8GB BLACK" data-price="8850" onchange="updateQuote()">
+                <div class="item-info">TEAM GROUP 16GB DELTA RGB 16 3200 DDR4 2x8GB BLACK</div>
+            </label>
+            <div class="item-price">8,850</div>
+        </div>
+		 <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TEAM GROUP 16GB DELTA RGB 16GB 3200 DDR4 2x8GB WHITE" data-price="8850" onchange="updateQuote()">
+                <div class="item-info">TEAM GROUP 16GB DELTA RGB 16GB 3200 DDR4 2x8GB WHITE</div>
+            </label>
+            <div class="item-price">8,850</div>
+        </div>
+		<h3>STORAGE 2.5 SSD</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ADATA  SSD AD-ASU650SS-512GT-R SU650" data-price="5700" onchange="updateQuote()">
+                <div class="item-info">ADATA  SSD AD-ASU650SS-512GT-R SU650</div>
+            </label>
+            <div class="item-price">5,700</div>
+        </div>
+		
+		<h3>STORAGE SSD M.2</h3>
+				<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 500GB" data-price="6400" onchange="updateQuote()">
+                <div class="item-info">MSI SPATIUM PCIE NVME 500GB</div>
+            </label>
+            <div class="item-price">6,400</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 1TB" data-price="11100" onchange="updateQuote()">
+                <div class="item-info">MSI SPATIUM M450 PCIE NVME 1TB</div>
+            </label>
+            <div class="item-price">11,100</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="KINGSTON SSD SNV3S/1000G" data-price="11875" onchange="updateQuote()">
+                <div class="item-info">KINGSTON SSD SNV3S/1000G</div>
+            </label>
+            <div class="item-price">11,875</div>
+        </div>
+		<h3>AIO CPU COOLER</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI LIQUID COOLER E240 WHITE" data-price="5650" onchange="updateQuote()">
+                <div class="item-info">MSI LIQUID COOLER E240 WHITE</div>
+            </label>
+            <div class="item-price">5,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI LIQUID COOLER A13 240 BLACK" data-price="3450" onchange="updateQuote()">
+                <div class="item-info">MSI LIQUID COOLER A13 240 BLACK</div>
+            </label>
+            <div class="item-price">3,450</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI LIQUID COOLER A13 240 WHITE" data-price="3750" onchange="updateQuote()">
+                <div class="item-info">MSI LIQUID COOLER A13 240 WHITE</div>
+            </label>
+            <div class="item-price">3,750</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SILVERSTONE LIQUID COOLER SST-PF240W-ARGB V2" data-price="5650" onchange="updateQuote()">
+                <div class="item-info">SILVERSTONE LIQUID COOLER SST-PF240W-ARGB V2</div>
+            </label>
+            <div class="item-price">5,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="COOLERMASTER LIQUID COOLER ML360L CORE ARGB WHITE" data-price="6850" onchange="updateQuote()">
+                <div class="item-info">COOLERMASTER LIQUID COOLER ML360L CORE ARGB WHITE</div>
+            </label>
+            <div class="item-price">6,850</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI LIQUID COOLER MAG A13 360 WHITE" data-price="4250" onchange="updateQuote()">
+                <div class="item-info">MSI LIQUID COOLER MAG A13 360 WHITE</div>
+            </label>
+            <div class="item-price">4,250</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG CORELIQUID I360 WHITE" data-price="6675" onchange="updateQuote()">
+                <div class="item-info">MSI MAG CORELIQUID I360 WHITE</div>
+            </label>
+            <div class="item-price">6,675</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="CORSAIR LIQUID COOLER ICUE LINK H150i RGB" data-price="13325" onchange="updateQuote()">
+                <div class="item-info">CORSAIR LIQUID COOLER ICUE LINK H150i RGB</div>
+            </label>
+            <div class="item-price">13,325</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SILVERSTONE LIQUID COOLER SST-PF360W-ARGB V2.0 WHITE" data-price="6530" onchange="updateQuote()">
+                <div class="item-info">SILVERSTONE LIQUID COOLER SST-PF360W-ARGB V2.0 WHITE</div>
+            </label>
+            <div class="item-price">6,530</div>
+        </div>
+		<h3>AIR COOLER</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI CPU COOLER MAG COREFROZR AA13 WHITE" data-price="1095" onchange="updateQuote()">
+                <div class="item-info">MSI CPU COOLER MAG COREFROZR AA13 WHITE</div>
+            </label>
+            <div class="item-price">1,095</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI CPU COOLER MAG COREFROZR AA13 BLACK" data-price="1095" onchange="updateQuote()">
+                <div class="item-info">MSI CPU COOLER MAG COREFROZR AA13 BLACK</div>
+            </label>
+            <div class="item-price">1,095</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SILVERSTONE CPU COOLER SST-AR12-TUF" data-price="1699" onchange="updateQuote()">
+                <div class="item-info">SILVERSTONE CPU COOLER SST-AR12-TUF</div>
+            </label>
+            <div class="item-price">1,699</div>
+        </div>
+		<h3>VIDEOCARD GPU</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GIGABYTE 8GB RX9060XT" data-price="23380" onchange="updateQuote()">
+                <div class="item-info">GIGABYTE 8GB RX9060XT</div>
+            </label>
+            <div class="item-price">22,380</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASROCK 8GB RX7600" data-price="18125" onchange="updateQuote()">
+                <div class="item-info">ASROCK 8GB RX7600</div>
+            </label>
+            <div class="item-price">18,125</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 5050 8GB SHADOW 2X OC" data-price="16999" onchange="updateQuote()">
+                <div class="item-info">ASROCK 8GB RX7600</div>
+            </label>
+            <div class="item-price">16,999</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 5060TI 16GB SHADOW 2X OC PLUS" data-price="36455" onchange="updateQuote()">
+                <div class="item-info">MSI RTX 5060TI 16GB SHADOW 2X OC PLUS</div>
+            </label>
+            <div class="item-price">36,455</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 3050 VENTUS 2X XS 8GB OC" data-price="17999" onchange="updateQuote()">
+                <div class="item-info">MSI RTX 3050 VENTUS 2X XS 8GB OC</div>
+            </label>
+            <div class="item-price">17,999</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 3050 VENTUS E 6GB OC 2X" data-price="14750" onchange="updateQuote()">
+                <div class="item-info">MSI RTX 3050 VENTUS E 6GB OC 2X</div>
+            </label>
+            <div class="item-price">14,750</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 5060 8GB VENTUS 2X OC" data-price="21000" onchange="updateQuote()">
+                <div class="item-info">MSI RTX 5060 8GB VENTUS 2X OC</div>
+            </label>
+            <div class="item-price">21,000</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI RTX 3070TI GAMING X TRIO 8GB" data-price="47450" onchange="updateQuote()">
+                <div class="item-info">MSI RTX 3070TI GAMING X TRIO 8GB</div>
+            </label>
+            <div class="item-price">47,450</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASUS PRIME RX9060XT-O16GB" data-price="29070" onchange="updateQuote()">
+                <div class="item-info">ASUS PRIME RX9060XT-O16GB</div>
+            </label>
+            <div class="item-price">29,070</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SAPPHIRE RX7700XT OC 12GB" data-price="31865" onchange="updateQuote()">
+                <div class="item-info">SAPPHIRE RX7700XT OC 12GB</div>
+            </label>
+            <div class="item-price">31,865</div>
+        </div>
+		<h3>POWER SUPPLY PSU</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="CORSAIR CX650" data-price="3425" onchange="updateQuote()">
+                <div class="item-info">CORSAIR POWER SUPPLY CX650</div>
+            </label>
+            <div class="item-price">3,425</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MWE GOLD V2 850 FULL MODULAR " data-price="7360" onchange="updateQuote()">
+                <div class="item-info">MWE GOLD V2 850 FULL MODULAR </div>
+            </label>
+            <div class="item-price">7,360</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GIGABYTE GP-P650SS-ICE" data-price="3225" onchange="updateQuote()">
+                <div class="item-info">GIGABYTE GP-P650SS-ICE</div>
+            </label>
+            <div class="item-price">3,225</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ACE POWER FP-650W" data-price="1800" onchange="updateQuote()">
+                <div class="item-info">ACE POWER FP-650W</div>
+            </label>
+            <div class="item-price">1,800</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="CORSAIR CX750 80PLUS BRONZE ATX" data-price="4165" onchange="updateQuote()">
+                <div class="item-info">CORSAIR CX750 80PLUS BRONZE ATX</div>
+            </label>
+            <div class="item-price">4,165</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG A750GN PCIE5" data-price="4750" onchange="updateQuote()">
+                <div class="item-info">MSI MAG A750GN PCIE5</div>
+            </label>
+            <div class="item-price">4,750</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="COOLERMASTER MWE BRONZE 750 V3" data-price="4150" onchange="updateQuote()">
+                <div class="item-info">COOLERMASTER MWE BRONZE 750 V3</div>
+            </label>
+            <div class="item-price">4,150</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="COOLERMASTER MWE GOLD V2 1250 FULL MODULAR" data-price="12305" onchange="updateQuote()">
+                <div class="item-info">COOLERMASTER MWE GOLD V2 1250 FULL MODULAR</div>
+            </label>
+            <div class="item-price">12,305</div>
+        </div>
+		<h3>DESKTOP CASING</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC ARTEMIS AR17A BLACK" data-price="2495" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC ARTEMIS AR17A BLACK</div>
+            </label>
+            <div class="item-price">2,495</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC HERMES HE19A BLACK" data-price="1650" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC HERMES HE19A BLACK</div>
+            </label>
+            <div class="item-price">1,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC HERMES HE19A WHITE" data-price="1725" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC HERMES HE19A WHITE</div>
+            </label>
+            <div class="item-price">1,725</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC ERIS BLACK" data-price="1450" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC ERIS BLACK</div>
+            </label>
+            <div class="item-price">1,450</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC FC-F55AS WITH PSU" data-price="1350" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC FC-F55AS WITH PSU</div>
+            </label>
+            <div class="item-price">1,350</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC MEGATRON ME19A BLACK" data-price="1800" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC MEGATRON ME19A BLACK</div>
+            </label>
+            <div class="item-price">1,800</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC KRATOS KT30A BLACK" data-price="2475" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC KRATOS KT30A BLACK</div>
+            </label>
+            <div class="item-price">2,475</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC CRONUS BLACK" data-price="1650" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC CRONUS BLACK</div>
+            </label>
+            <div class="item-price">1,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG FORGE 120A AIRFLOW BLACK" data-price="2990" onchange="updateQuote()">
+                <div class="item-info">MSI MAG FORGE 120A AIRFLOW BLACK</div>
+            </label>
+            <div class="item-price">2,990</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG FORGE M100R WHITE" data-price="3300" onchange="updateQuote()">
+                <div class="item-info">MSI MAG FORGE M100R WHITE</div>
+            </label>
+            <div class="item-price">3,300</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG PANO 100R PZ WHITE" data-price="6675" onchange="updateQuote()">
+                <div class="item-info">MSI MAG PANO 100R PZ WHITE</div>
+            </label>
+            <div class="item-price">6,675</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG SHIELD M301 BLACK" data-price="1550" onchange="updateQuote()">
+                <div class="item-info">MSI MAG SHIELD M301 BLACK</div>
+            </label>
+            <div class="item-price">1,550</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="COOLERMASTER NR200P BLACK" data-price="4475" onchange="updateQuote()">
+                <div class="item-info">COOLERMASTER NR200P BLACK</div>
+            </label>
+            <div class="item-price">4,475</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="LIAN LI O11DEXL-W WHITE" data-price="13225" onchange="updateQuote()">
+                <div class="item-info">LIAN LI O11DEXL-W WHITE</div>
+            </label>
+            <div class="item-price">13,225</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="LIAN LI O11DEXL-X BLACK" data-price="12650" onchange="updateQuote()">
+                <div class="item-info">LIAN LI O11DEXL-X BLACK</div>
+            </label>
+            <div class="item-price">12,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SILVERSTONE SST-FA514X-BG BLACK" data-price="4150" onchange="updateQuote()">
+                <div class="item-info">SILVERSTONE SST-FA514X-BG BLACK</div>
+            </label>
+            <div class="item-price">4,150</div>
+        </div>
+		<h3>OPERATING SYSTEM</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MICROSOFT  WIN 11 PRO 64 BIT FQC-10529" data-price="3250" onchange="updateQuote()">
+                <div class="item-info">MICROSOFT  WIN 11 PRO 64 BIT FQC-10529</div>
+            </label>
+            <div class="item-price">3,250</div>
+        </div>
+		<h3>MS OFFICE PRO PLUS 2021</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MICROSOFT  OFFICE PROFESSIONAL PLUS 2021 269-01881" data-price="3799" onchange="updateQuote()">
+                <div class="item-info">MICROSOFT  OFFICE PROFESSIONAL PLUS 2021 269-01881</div>
+            </label>
+            <div class="item-price">3,799</div>
+        </div>
+		<h3>MONITOR</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 27G50Z" data-price="8995" onchange="updateQuote()">
+                <div class="item-info">AOC 27G50Z</div>
+            </label>
+            <div class="item-price">8,995</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MAG 273QP QD-OLED X24 BLACK" data-price="33600" onchange="updateQuote()">
+                <div class="item-info">MAG 273QP QD-OLED X24 BLACK</div>
+            </label>
+            <div class="item-price">33,600</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 27B30H3 WHITE-BLACK" data-price="6100" onchange="updateQuote()">
+                <div class="item-info">AOC 27B30H3 WHITE-BLACK</div>
+            </label>
+            <div class="item-price">6,100</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 27G4H BLACK-RED" data-price="11495" onchange="updateQuote()">
+                <div class="item-info">AOC 27G4H BLACK-RED</div>
+            </label>
+            <div class="item-price">11,495</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 27G4 BLACK-RED" data-price="11495" onchange="updateQuote()">
+                <div class="item-info">AOC 27G4 BLACK-RED</div>
+            </label>
+            <div class="item-price">11,495</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 27G11ZE2 BLACK" data-price="8850" onchange="updateQuote()">
+                <div class="item-info">AOC 27G11ZE2 BLACK</div>
+            </label>
+            <div class="item-price">8,850</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC 24B36XE BLACK" data-price="4350" onchange="updateQuote()">
+                <div class="item-info">AOC 24B36XE BLACK</div>
+            </label>
+            <div class="item-price">4,350</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOC C32G2ZE2 BLACK-RED" data-price="12295" onchange="updateQuote()">
+                <div class="item-info">AOC C32G2ZE2 BLACK-RED</div>
+            </label>
+            <div class="item-price">12,295</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASUS TUF VG259Q5A BLACK" data-price="9000" onchange="updateQuote()">
+                <div class="item-info">ASUS TUF VG259Q5A BLACK</div>
+            </label>
+            <div class="item-price">9,000</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASUS TUF VG249QM1A BLACK" data-price="16080" onchange="updateQuote()">
+                <div class="item-info">ASUS TUF VG249QM1A BLACK</div>
+            </label>
+            <div class="item-price">16,080</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ACER SA222Q EBi BLACK" data-price="4299" onchange="updateQuote()">
+                <div class="item-info">ACER SA222Q EBi BLACK</div>
+            </label>
+            <div class="item-price">4,299</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ACER EK251Q P6bi BLACK" data-price="4999" onchange="updateQuote()">
+                <div class="item-info">ACER EK251Q P6bi BLACK</div>
+            </label>
+            <div class="item-price">4,999</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ACER VG240Y X1 BLACK" data-price="9399" onchange="updateQuote()">
+                <div class="item-info">ACER VG240Y X1 BLACK</div>
+            </label>
+            <div class="item-price">9,399</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="LENOVO LEGION R24S 68CBGAC2PH BLACK" data-price="4995" onchange="updateQuote()">
+                <div class="item-info">LENOVO LEGION R24S 68CBGAC2PH BLACK</div>
+            </label>
+            <div class="item-price">4,995</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI MAG 27CQ6F BLACK" data-price="15300" onchange="updateQuote()">
+                <div class="item-info">MSI MAG 27CQ6F BLACK</div>
+            </label>
+            <div class="item-price">15,300</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI G274QPF-QD BLACK" data-price="22000" onchange="updateQuote()">
+                <div class="item-info">MSI G274QPF-QD BLACK</div>
+            </label>
+            <div class="item-price">22,000</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI PRO MP251L E2 BLACK" data-price="4295" onchange="updateQuote()">
+                <div class="item-info">MSI PRO MP251L E2 BLACK</div>
+            </label>
+            <div class="item-price">4,295</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MSI OPTIX G241V E2 BLACK" data-price="8200" onchange="updateQuote()">
+                <div class="item-info">MSI OPTIX G241V E2 BLACK</div>
+            </label>
+            <div class="item-price">8,200</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="PHILIPS 27E2N1500 BLACK" data-price="7950" onchange="updateQuote()">
+                <div class="item-info">PHILIPS 27E2N1500 BLACK</div>
+            </label>
+            <div class="item-price">7,950</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SAMSUNG LS27BG400EEXP BLACK" data-price="11499" onchange="updateQuote()">
+                <div class="item-info">SAMSUNG LS27BG400EEXP BLACK</div>
+            </label>
+            <div class="item-price">11,499</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SAMSUNG LS27F320GAEXXP BLACK" data-price="6595" onchange="updateQuote()">
+                <div class="item-info">SAMSUNG LS27F320GAEXXP BLACK</div>
+            </label>
+            <div class="item-price">6,595</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="SAMSUNG LS32DG302EEXXP BLACK" data-price="11295" onchange="updateQuote()">
+                <div class="item-info">SAMSUNG LS32DG302EEXXP BLACK</div>
+            </label>
+            <div class="item-price">11,295</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="GIGABYTE GP-G27QC-A-AP" data-price="17800" onchange="updateQuote()">
+                <div class="item-info">GIGABYTE GP-G27QC-A-AP</div>
+            </label>
+            <div class="item-price">17,800</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VIEWSONIC VX2428J BLACK" data-price="8650" onchange="updateQuote()">
+                <div class="item-info">VIEWSONIC VX2428J BLACK</div>
+            </label>
+            <div class="item-price">8,650</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VIEWSONIC  VX2728-2K BLACK" data-price="13450" onchange="updateQuote()">
+                <div class="item-info">VIEWSONIC  VX2728-2K BLACK</div>
+            </label>
+            <div class="item-price">13,450</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="LG ULTRA GEAR 24GS60F-BLACK" data-price="9495" onchange="updateQuote()">
+                <div class="item-info">LG ULTRA GEAR 24GS60F-BLACK</div>
+            </label>
+            <div class="item-price">9,495</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="XIAOMI G PRO 27i US MINI LED" data-price="19999" onchange="updateQuote()">
+                <div class="item-info">XIAOMI G PRO 27i US MINI LED</div>
+            </label>
+            <div class="item-price">19,999</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AOPEN FIRE LEGEND 27HC5Z1ABMIIPHX BLACK" data-price="10499" onchange="updateQuote()">
+                <div class="item-info">AOPEN FIRE LEGEND 27HC5Z1ABMIIPHX BLACK</div>
+            </label>
+            <div class="item-price">10,499</div>
+        </div>
+		
+		
+		
+		
+		
+					
+			
+							
+        <h3>MEMORY SODIMM</h3>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="KINGSTON KVR56S46BS6-8GB" data-price="3900" onchange="updateQuote()">
+                <div class="item-info">KINGSTON KVR56S4BS6-8GB</div>
+            </label>
+            <div class="item-price">3,900</div>
+        </div>
+        <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ADATA 8GB AD-AD5S56008GS" data-price="7475" onchange="updateQuote()">
+                <div class="item-info">ADATA 8GB AD-AD5S56008GS</div>
+            </label>
+            <div class="item-price">7,475</div>
+        </div>
+         <div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ADATA AD4S32008G22-SGN/8GB" data-price="6225" onchange="updateQuote()">
+                <div class="item-info">ADATA AD4S32008G22-SGN/8GB</div>
+            </label>
+            <div class="item-price">6,225</div>
+        </div>
+				
+        <button class="btn-print" onclick="window.print()">PRINT QUOTATION</button>
+    </div>
+
+    <div class="print-panel">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <img src="svgalogo.png" class="logo-img" alt="SVGA LOGO">
+            
+            <div style="text-align: right; font-size: 11px;">
+                <strong style="color: #d32f2f; font-size: 14px;">SILICON VALLEY GAMING ARENA</strong><br>
+                3/F Cyberzone SM Southmall<br>
+                Alabang-Zapote Rd. Las Piñas City<br>
+                svgasouthmall@gmail.com<br>
+                Viber: 09668861060 | Tel: 02-8332-9486
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; border-top: 2px solid #333; padding-top: 10px; font-size: 13px;">
+            <div>
+                <strong>CUSTOMER:</strong> <span id="outName">____________________</span><br>
+                <strong>ADDRESS:</strong> <span id="outAddress">____________________</span><br>
+                <strong>CONTACT:</strong> <span id="outContact">____________________</span>
+            </div>
+            <div style="text-align: right;">
+                <strong>DATE:</strong> <span id="currentDate"></span><br>
+                <strong>SALESMAN:</strong> <span id="outSalesman">____________________</span><br>
+                <strong>SALES NO:</strong> <span id="outSalesNo">____________________</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>COMPONENTS / DESCRIPTION</th>
+                    <th style="text-align: right; width: 140px;">PRICE (PHP)</th>
+                </tr>
+            </thead>
+            <tbody id="quoteBody">
+                <tr><td colspan="2" style="text-align: center; color: #999; padding: 20px;"></td></tr>
+            </tbody>
+        </table>
+
+        <div class="total-box">
+            <div class="srp-label">SRP PRICE: ₱ <span id="srpTotalDisplay">0.00</span></div>
+            <div id="cashRow" class="cash-label" style="display:none;">CASH PRICE: ₱ <span id="cashTotalDisplay">0.00</span></div>
+        </div>
+
+        <div style="margin-top: 50px; font-size: 11px; color: #444; line-height: 1.5; border-top: 1px solid #ccc; padding-top: 10px;">
+            <strong>NOTES:</strong><br>
+            * Quote validity is 7 days only from the date issued.<br>
+            * 1 Year Warranty on Parts and Services. No warranty on software/OS.<br>
+            * Cash price is valid for full cash payments only.<br>
+            * Prices and specifications subject to change without prior notice.
+        </div>
+    </div>
+</div>
+
+<script>
+    let isCashMode = false;
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    function toggleCash() {
+        isCashMode = !isCashMode;
+        const btn = document.getElementById('cashBtn');
+        btn.classList.toggle('active');
+        btn.innerText = isCashMode ? "CASH MODE: ON" : "SHOW CASH PRICE (5% OFF)";
+        updateQuote();
+    }
+
+    function syncInfo() {
+        document.getElementById('outName').innerText = document.getElementById('inName').value || "____________________";
+        document.getElementById('outAddress').innerText = document.getElementById('inAddress').value || "____________________";
+        document.getElementById('outContact').innerText = document.getElementById('inContact').value || "____________________";
+        document.getElementById('outSalesman').innerText = document.getElementById('inSalesman').value.toUpperCase() || "____________________";
+        document.getElementById('outSalesNo').innerText = document.getElementById('inSalesNo').value || "____________________";
+    }
+
+    function updateQuote() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const tbody = document.getElementById('quoteBody');
+        let html = ''; let srpTotal = 0; let count = 0;
+
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                const name = cb.getAttribute('data-name');
+                const price = parseFloat(cb.getAttribute('data-price'));
+                html += `<tr><td>${name}</td><td style="text-align: right; font-weight: bold;">${price.toLocaleString(undefined,{minimumFractionDigits: 2})}</td></tr>`;
+                srpTotal += price;
+                count++;
+            }
+        });
+
+        tbody.innerHTML = count > 0 ? html : '<tr><td colspan="2" style="text-align: center; color: #999; padding: 20px;"></td></tr>';
+        
+        document.getElementById('srpTotalDisplay').innerText = srpTotal.toLocaleString(undefined,{minimumFractionDigits: 2});
+
+        if (isCashMode && srpTotal > 0) {
+            let cashDiscount = srpTotal * 0.05;
+            let cashPrice = srpTotal - cashDiscount;
+            document.getElementById('cashRow').style.display = 'block';
+            document.getElementById('cashTotalDisplay').innerText = cashPrice.toLocaleString(undefined,{minimumFractionDigits: 2});
+        } else {
+            document.getElementById('cashRow').style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>
