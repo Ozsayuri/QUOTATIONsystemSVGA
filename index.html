@@ -2,6 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>SVGA Quotation System - Staff Access</title>
+    <style>
+        /* --- DITO ANG STYLE NG LOGIN OVERLAY --- */
+        #loginOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* DITO ANG FIX: 'white' background + 'contain' para hindi putol ang logo */
+    background: #FFFFFF url('svgalogo.png') no-repeat center center;
+    background-size: contain; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 350px;
+            text-align: center;
+            backdrop-filter: blur(5px); /* Optional: Blur effect sa likod ng box */
+        }
+
+        .login-box h2 {
+            color: #d32f2f;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #d32f2f;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .login-box button:hover {
+            background: #b71c1c;
+        }
+
+        /* --- EXISTING STYLES MO SA QUOTATION SYSTEM --- */
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
+        .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
+        .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
+        /* ... (The rest of your CSS stays the same) ... */
+    </style>
+</head>
+<body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2>SVGA QOUTATION SYSTEMS</h2>
+        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter staff credentials</p>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="checkLogin()">LOG IN</button>
+        <p id="errMsg" style="color: #d32f2f; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;">
+            ⚠️ Access Denied. Check credentials.
+        </p>
+    </div>
+</div>
+
+<script>
+    function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+
+        // EDIT MO DITO ANG USERNAME AT PASSWORD
+        if(u === "admin" && p === "svga2026") { 
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            document.getElementById('errMsg').style.display = 'block';
+        }
+    }
+
+    // Allow login using 'Enter' key
+    window.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) { checkLogin(); }
+    });
+</script>
+
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>SVGA Quotation System - SRP & Cash Price</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
@@ -111,12 +223,19 @@
             </label>
             <div class="item-price">9,000</div>
         </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="AMD RYZEN 5 7500F MPK TRAY W/FAN" data-price="9200" onchange="updateQuote()">
+                <div class="item-info">AMD RYZEN 5 7500F MPK TRAY W/FAN</div>
+            </label>
+            <div class="item-price">9,200</div>
+        </div>
 		 <div class="item-row">
             <label>
-                <input type="checkbox" data-name="AMD RYZEN 7 5700G TRAY" data-price="11950" onchange="updateQuote()">
-                <div class="item-info">AMD Ryzen 7 5700G</div>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
             </label>
-            <div class="item-price">11950</div>
+            <div class="item-price"></div>
         </div>
 		
         <div class="item-row">
@@ -128,17 +247,17 @@
         </div>
         <div class="item-row">
             <label>
-                <input type="checkbox" data-name="AMD RYZEN 5 5500 MPK" data-price="7500" onchange="updateQuote()">
+                <input type="checkbox" data-name="AMD RYZEN 5 5600G MPK" data-price="7500" onchange="updateQuote()">
                 <div class="item-info">AMD Ryzen 5 5600G</div>
             </label>
             <div class="item-price">7500</div>
         </div>
 		<div class="item-row">
             <label>
-                <input type="checkbox" data-name="AMD RYZEN 5 5500 MPK" data-price="5200" onchange="updateQuote()">
+                <input type="checkbox" data-name="AMD RYZEN 5 5500 MPK" data-price="5665" onchange="updateQuote()">
                 <div class="item-info">AMD RYZEN 5 5500 MPK</div>
             </label>
-            <div class="item-price">5,200</div>
+            <div class="item-price">5665</div>
         </div>
 		<div class="item-row">
             <label>
@@ -149,10 +268,10 @@
         </div>
 		<div class="item-row">
             <label>
-                <input type="checkbox" data-name="AMD RYZEN 7600X TRAY" data-price="12925" onchange="updateQuote()">
-                <div class="item-info">AMD RYZEN 7600X TRAY</div>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
             </label>
-            <div class="item-price">12,925</div>
+            <div class="item-price"></div>
         </div>
 		<div class="item-row">
             <label>
@@ -228,6 +347,13 @@
         </div>
 		<div class="item-row">
             <label>
+                <input type="checkbox" data-name="GA-B760-GAMING-X-AX DDR5" data-price="11600" onchange="updateQuote()">
+                <div class="item-info">GA-B760-GAMING-X-AX DDR5</div>
+            </label>
+            <div class="item-price">11,600</div>
+        </div>
+		<div class="item-row">
+            <label>
                 <input type="checkbox" data-name="ASUS PRIME H610M-K D4" data-price="5390" onchange="updateQuote()">
                 <div class="item-info">ASUS PRIME H610M-K D4</div>
             </label>
@@ -241,6 +367,13 @@
                 <div class="item-info">ASROCK A520M-HVS/M.2</div>
             </label>
             <div class="item-price">3,350</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ASROCK B550M PRO RS WHITE" data-price="6000" onchange="updateQuote()">
+                <div class="item-info">ASROCK B550M PRO RS WHITE</div>
+            </label>
+            <div class="item-price">6,000</div>
         </div>
         <div class="item-row">
             <label>
@@ -303,10 +436,17 @@
         <h3>MEMORY DIMM</h3>
         <div class="item-row">
             <label>
-                <input type="checkbox" data-name="TEAM GROUP VULCAN Z 3200 16GB (8X2)" data-price="7900" onchange="updateQuote()">
-                <div class="item-info">Team Vulcan 16GB</div>
+                <input type="checkbox" data-name="" data-price="" onchange="updateQuote()">
+                <div class="item-info"></div>
             </label>
-            <div class="item-price">7,900</div>
+            <div class="item-price"></div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VULCAN 32GB 6000 DDR5 2 x 16GB" data-price="33650" onchange="updateQuote()">
+                <div class="item-info">VULCAN 32GB 6000 DDR5 2 x 16GB</div>
+            </label>
+            <div class="item-price">33,650</div>
         </div>
          <div class="item-row">
             <label>
@@ -329,20 +469,29 @@
             </label>
             <div class="item-price">8,850</div>
         </div>
+		<h3>STORAGE 2.5 SSD</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="ADATA  SSD AD-ASU650SS-512GT-R SU650" data-price="5700" onchange="updateQuote()">
+                <div class="item-info">ADATA  SSD AD-ASU650SS-512GT-R SU650</div>
+            </label>
+            <div class="item-price">5,700</div>
+        </div>
+		
 		<h3>STORAGE SSD M.2</h3>
 				<div class="item-row">
             <label>
-                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 500GB" data-price="5650" onchange="updateQuote()">
+                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 500GB" data-price="6400" onchange="updateQuote()">
                 <div class="item-info">MSI SPATIUM PCIE NVME 500GB</div>
             </label>
-            <div class="item-price">5,650</div>
+            <div class="item-price">6,400</div>
         </div>
 		<div class="item-row">
             <label>
-                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 1TB" data-price="8165" onchange="updateQuote()">
+                <input type="checkbox" data-name="MSI SPATIUM M450 PCIE NVME 1TB" data-price="11100" onchange="updateQuote()">
                 <div class="item-info">MSI SPATIUM M450 PCIE NVME 1TB</div>
             </label>
-            <div class="item-price">8,165</div>
+            <div class="item-price">11,100</div>
         </div>
 		<div class="item-row">
             <label>
@@ -518,6 +667,13 @@
         </div>
 		<div class="item-row">
             <label>
+                <input type="checkbox" data-name="MWE GOLD V2 850 FULL MODULAR " data-price="7360" onchange="updateQuote()">
+                <div class="item-info">MWE GOLD V2 850 FULL MODULAR </div>
+            </label>
+            <div class="item-price">7,360</div>
+        </div>
+		<div class="item-row">
+            <label>
                 <input type="checkbox" data-name="GIGABYTE GP-P650SS-ICE" data-price="3225" onchange="updateQuote()">
                 <div class="item-info">GIGABYTE GP-P650SS-ICE</div>
             </label>
@@ -561,6 +717,13 @@
 		<h3>DESKTOP CASING</h3>
 		<div class="item-row">
             <label>
+                <input type="checkbox" data-name="TRENDSONIC ARTEMIS AR17A BLACK" data-price="2495" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC ARTEMIS AR17A BLACK</div>
+            </label>
+            <div class="item-price">2,495</div>
+        </div>
+		<div class="item-row">
+            <label>
                 <input type="checkbox" data-name="TRENDSONIC HERMES HE19A BLACK" data-price="1650" onchange="updateQuote()">
                 <div class="item-info">TRENDSONIC HERMES HE19A BLACK</div>
             </label>
@@ -600,6 +763,13 @@
                 <div class="item-info">TRENDSONIC KRATOS KT30A BLACK</div>
             </label>
             <div class="item-price">2,475</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="TRENDSONIC CRONUS BLACK" data-price="1650" onchange="updateQuote()">
+                <div class="item-info">TRENDSONIC CRONUS BLACK</div>
+            </label>
+            <div class="item-price">1,650</div>
         </div>
 		<div class="item-row">
             <label>
@@ -657,6 +827,22 @@
             </label>
             <div class="item-price">4,150</div>
         </div>
+		<h3>OPERATING SYSTEM</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MICROSOFT  WIN 11 PRO 64 BIT FQC-10529" data-price="3250" onchange="updateQuote()">
+                <div class="item-info">MICROSOFT  WIN 11 PRO 64 BIT FQC-10529</div>
+            </label>
+            <div class="item-price">3,250</div>
+        </div>
+		<h3>MS OFFICE PRO PLUS 2021</h3>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MICROSOFT  OFFICE PROFESSIONAL PLUS 2021 269-01881" data-price="3799" onchange="updateQuote()">
+                <div class="item-info">MICROSOFT  OFFICE PROFESSIONAL PLUS 2021 269-01881</div>
+            </label>
+            <div class="item-price">3,799</div>
+        </div>
 		<h3>MONITOR</h3>
 		<div class="item-row">
             <label>
@@ -664,6 +850,13 @@
                 <div class="item-info">AOC 27G50Z</div>
             </label>
             <div class="item-price">8,995</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="MAG 273QP QD-OLED X24 BLACK" data-price="33600" onchange="updateQuote()">
+                <div class="item-info">MAG 273QP QD-OLED X24 BLACK</div>
+            </label>
+            <div class="item-price">33,600</div>
         </div>
 		<div class="item-row">
             <label>
@@ -883,7 +1076,7 @@
 
     <div class="print-panel">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <img src="svga_logo.png" class="logo-img" alt="SVGA LOGO">
+            <img src="svgalogo.png" class="logo-img" alt="SVGA LOGO">
             
             <div style="text-align: right; font-size: 11px;">
                 <strong style="color: #d32f2f; font-size: 14px;">SILICON VALLEY GAMING ARENA</strong><br>
