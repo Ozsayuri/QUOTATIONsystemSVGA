@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>SVGA Quotation System - Staff Access</title>
     <style>
-        /* --- DITO ANG STYLE NG LOGIN OVERLAY --- */
+       
         #loginOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* DITO ANG FIX: 'white' background + 'contain' para hindi putol ang logo */
+   
     background: #FFFFFF url('svgalogo.png') no-repeat center center;
     background-size: contain; 
     display: flex;
@@ -22,13 +22,13 @@
 }
 
         .login-box {
-            background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+            background: rgba(255, 255, 255, 0.95); 
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             width: 350px;
             text-align: center;
-            backdrop-filter: blur(5px); /* Optional: Blur effect sa likod ng box */
+            backdrop-filter: blur(5px); 
         }
 
         .login-box h2 {
@@ -66,19 +66,19 @@
             background: #b71c1c;
         }
 
-        /* --- EXISTING STYLES MO SA QUOTATION SYSTEM --- */
+        
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
         .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
         .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
         .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
-        /* ... (The rest of your CSS stays the same) ... */
+        
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
     <div class="login-box">
-        <h2>SVGA QOUTATION SYSTEMS</h2>
+        <h2>SVGA QUOTATION SYSTEMS</h2>
         <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter staff credentials</p>
         <input type="text" id="user" placeholder="Username">
         <input type="password" id="pass" placeholder="Password">
@@ -94,7 +94,7 @@
         const u = document.getElementById('user').value;
         const p = document.getElementById('pass').value;
 
-        // EDIT MO DITO ANG USERNAME AT PASSWORD
+       
         if(u === "admin" && p === "svga2026") { 
             document.getElementById('loginOverlay').style.display = 'none';
         } else {
@@ -102,7 +102,7 @@
         }
     }
 
-    // Allow login using 'Enter' key
+   
     window.addEventListener("keyup", function(event) {
         if (event.keyCode === 13) { checkLogin(); }
     });
@@ -119,10 +119,10 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
         .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
         
-        /* Left Side: Controls */
+       
         .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
         
-        /* Right Side: Print Preview */
+       
         .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
         
         h2 { color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 5px; margin-top: 0; font-size: 18px; }
@@ -130,18 +130,18 @@
 
         .client-inputs input { width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
         
-        /* --- ITO YUNG FIX PARA SA PRICE SA GILID --- */
+        
         .item-row { 
             display: flex; 
             align-items: center; 
             padding: 6px; 
             border-bottom: 1px solid #eee; 
             cursor: pointer; 
-            justify-content: space-between; /* Itutulak nito yung price sa dulo */
+            justify-content: space-between; 
         }
         .item-row:hover { background: #f9f9f9; }
         
-        /* Label wrapper para magkasama yung checkbox at pangalan sa kaliwa */
+        
         .item-row label {
             display: flex;
             align-items: center;
@@ -449,10 +449,24 @@
         <h3>MEMORY DIMM</h3>
 		<div class="item-row">
             <label>
-                <input type="checkbox" data-name="VULCAN Z 3200 8GB GRAY" data-price="4590" onchange="updateQuote()">
-                <div class="item-info">VULCAN Z 3200 8GB GRAY</div>
+                <input type="checkbox" data-name="DELTA RGB 32GB 3200 2x16GB BLACK" data-price="18625" onchange="updateQuote()">
+                <div class="item-info">DELTA RGB 32GB 3200 2x16GB BLACK</div>
             </label>
-            <div class="item-price">4,590</div>
+            <div class="item-price">18,625</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VULCAN Z  8GB X2 3200MHZ" data-price="9700" onchange="updateQuote()">
+                <div class="item-info">VULCAN Z  8GB X2 3200MHZ</div>
+            </label>
+            <div class="item-price">9,700</div>
+        </div>
+		<div class="item-row">
+            <label>
+                <input type="checkbox" data-name="VULCAN Z GRAY 8GB 3600" data-price="4650" onchange="updateQuote()">
+                <div class="item-info">VULCAN Z GRAY 8GB 3600</div>
+            </label>
+            <div class="item-price">4,650</div>
         </div>
         <div class="item-row">
             <label>
