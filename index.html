@@ -189,29 +189,6 @@
             <input type="text" id="inSalesman" placeholder="Salesman Name" oninput="syncInfo()">
             <input type="text" id="inSalesNo" placeholder="Salesman Contact Number" oninput="syncInfo()">
         </div>
-		<!-- Simpleng Admin Form para sa Pag-update -->
-<div id="admin-panel" style="background: #f4f4f4; padding: 20px; border: 1px solid #ccc; margin-top: 20px;">
-    <h3>Update Inventory (AMD Processors)</h3>
-    <div style="margin-bottom: 10px;">
-        <input type="text" id="new-item-name" placeholder="Item Name (e.g. AMD Ryzen 5 5600)">
-        <input type="number" id="new-item-price" placeholder="Price">
-        <button onclick="addItem()" style="background: #28a745; color: white; border: none; padding: 5px 15px; cursor: pointer;">Add/Update Item</button>
-    </div>
-
-    <table id="inventory-table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #ddd;">
-                <th style="text-align: left; padding: 8px;">Item Description</th>
-                <th style="text-align: left; padding: 8px;">Price</th>
-                <th style="text-align: left; padding: 8px;">Action</th>
-            </tr>
-        </thead>
-        <tbody id="inventory-body">
-            <!-- Dito lalabas ang mga items -->
-        </tbody>
-    </table>
-</div>
-
         <h2>2. PAYMENT MODE</h2>
         <button id="cashBtn" class="mode-btn" onclick="toggleCash()">SHOW CASH PRICE (5% OFF)</button>
 
