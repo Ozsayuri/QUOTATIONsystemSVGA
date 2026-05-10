@@ -2,125 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SVGA Quotation System - Staff Access</title>
     <style>
-       
+        :root { --sv-red: #e61e25; --sv-gold: #f1c40f; --sv-dark: #1a252f; --gray: #95a5a6; }
+        
+        /* LOGIN OVERLAY */
         #loginOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-   
-    background: #FFFFFF url('svgalogo.png') no-repeat center center;
-    background-size: contain; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #FFFFFF url('svgalogo.png') no-repeat center center;
+            background-size: contain; display: flex; justify-content: center;
+            align-items: center; z-index: 10000; font-family: 'Segoe UI', Arial, sans-serif;
+        }
         .login-box {
-            background: rgba(255, 255, 255, 0.95); 
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            width: 350px;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 350px; text-align: center;
             backdrop-filter: blur(5px); 
         }
+        .login-box h2 { color: #d32f2f; margin-bottom: 25px; border-bottom: 2px solid #d32f2f; display: inline-block; padding-bottom: 5px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .login-box button { width: 100%; padding: 12px; background: #d32f2f; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .login-box button:hover { background: #b71c1c; }
 
-        .login-box h2 {
-            color: #d32f2f;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #d32f2f;
-            display: inline-block;
-            padding-bottom: 5px;
-        }
-
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: #d32f2f;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-
-        .login-box button:hover {
-            background: #b71c1c;
-        }
-
-        
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; }
-        .main-wrapper { display: flex; gap: 20px; max-width: 1300px; margin: auto; }
-        .inventory-panel { background: white; padding: 20px; width: 35%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); height: 95vh; overflow-y: auto; }
-        .print-panel { background: white; padding: 40px; width: 65%; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 95vh; }
-        
-    </style>
-</head>
-
-<body>
-
-<div id="loginOverlay">
-    <div class="login-box">
-        <h2>SVGA QUOTATION SYSTEMS</h2>
-        <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter staff credentials</p>
-        <input type="text" id="user" placeholder="Username">
-        <input type="password" id="pass" placeholder="Password">
-        <button onclick="checkLogin()">LOG IN</button>
-        <p id="errMsg" style="color: #d32f2f; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;">
-            ⚠️ Access Denied. Check credentials.
-        </p>
-    </div>
-</div>
-
-<script>
-    function checkLogin() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-
-       
-        if(u === "admin" && p === "svga2026") { 
-            document.getElementById('loginOverlay').style.display = 'none';
-        } else {
-            document.getElementById('errMsg').style.display = 'block';
-        }
-    }
-
-   
-    window.addEventListener("keyup", function(event) {
-        if (event.keyCode === 13) { checkLogin(); }
-    });
-</script>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVGA Inventory & Quotation System</title>
-    <style>
-        :root { --sv-red: #e61e25; --sv-gold: #f1c40f; --sv-dark: #1a252f; --gray: #95a5a6; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background: #f0f2f5; color: #333; }
+        /* MAIN STYLES */
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
         .container { max-width: 1600px; margin: auto; } 
-        
         .grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; align-items: start; }
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         
-        /* HEADER */
         .header-print { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
         .logo-box { flex: 1; }
         .logo-text { font-size: 65px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -2px; }
@@ -130,30 +39,24 @@
         
         .info-box { text-align: right; font-size: 12px; line-height: 1.4; }
         .info-box .brand { color: var(--sv-red); font-weight: bold; font-size: 16px; }
-
         .line-divider { border-top: 2px solid #000; margin: 10px 0; }
 
-        /* CUSTOMER DETAILS */
         .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; font-size: 13px; font-weight: bold; margin-bottom: 20px; }
         .detail-row { display: flex; align-items: flex-end; margin-bottom: 5px; }
         .detail-row span { margin-right: 5px; white-space: nowrap; }
         .detail-fill { border-bottom: 1px solid #000; flex-grow: 1; min-height: 15px; outline: none; }
 
-        /* QTY BUTTONS */
         .qty-controls { display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-qty { border: 1px solid #ccc; background: #fff; cursor: pointer; padding: 2px 8px; border-radius: 3px; font-weight: bold; }
 
-        /* NOTES SECTION */
         .notes-section { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 12px; line-height: 1.6; }
         .notes-title { font-weight: bold; margin-bottom: 5px; }
 
-        /* ITEM MANAGER */
         .input-box { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
         .input-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .input-row select, .input-row input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         .btn-save { background: #3498db; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; font-weight: bold; cursor: pointer; }
 
-        /* TABLES */
         table { width: 100%; border-collapse: collapse; }
         th { background: #f4f4f4; padding: 10px; border: 1px solid #ddd; font-size: 11px; text-align: left; }
         td { padding: 8px 10px; border: 1px solid #eee; font-size: 13px; }
@@ -161,6 +64,11 @@
         .btn-add { background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
         .btn-edit { background: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin: 0 2px; }
         .btn-del { background: #e61e25; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+        /* TOTAL SECTION */
+        .total-container { text-align: right; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .discount-row { color: #e61e25; font-size: 14px; font-weight: bold; display: none; } /* Hidden by default */
+        .main-total { font-size: 24px; color: #1a252f; }
 
         @media print {
             .no-print { display: none !important; }
@@ -173,10 +81,18 @@
 </head>
 <body>
 
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2>SVGA QUOTATION SYSTEMS</h2>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="checkLogin()">LOG IN</button>
+        <p id="errMsg" style="color: #d32f2f; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;">⚠️ Access Denied.</p>
+    </div>
+</div>
+
 <div class="container">
     <div class="grid">
-        
-        <!-- LEFT: ITEM MANAGER -->
         <div class="card no-print">
             <h3>📦 Inventory Manager</h3>
             <div class="input-box">
@@ -210,18 +126,12 @@
 
             <table>
                 <thead>
-                    <tr>
-                        <th>CAT</th>
-                        <th>DESCRIPTION</th>
-                        <th>SRP</th>
-                        <th>ACTION</th>
-                    </tr>
+                    <tr><th>CAT</th><th>DESCRIPTION</th><th>SRP</th><th>ACTION</th></tr>
                 </thead>
                 <tbody id="inventoryBody"></tbody>
             </table>
         </div>
 
-        <!-- RIGHT: ACTUAL QUOTATION FORM -->
         <div class="card">
             <div class="header-print">
                 <div class="logo-box">
@@ -232,7 +142,6 @@
                     <div class="brand">SILICON VALLEY GAMING ARENA</div>
                     3/F Cyberzone SM Southmall<br>
                     Alabang-Zapote Rd. Las Piñas City<br>
-                    svgasouthmall@gmail.com<br>
                     Viber: 09668861060 | Tel: 02-8332-9486
                 </div>
             </div>
@@ -246,7 +155,10 @@
                     <div class="detail-row"><span>CONTACT:</span><div class="detail-fill" contenteditable="true"></div></div>
                 </div>
                 <div>
-                    <div class="detail-row" style="justify-content: flex-end;"><span>DATE:</span><div style="border-bottom: 1px solid #000; width:150px">May 9, 2026</div></div>
+                    <div class="detail-row" style="justify-content: flex-end;">
+                        <span>DATE:</span>
+                        <div id="autoDate" style="border-bottom: 1px solid #000; width:150px; text-align: center;"></div>
+                    </div>
                     <div class="detail-row"><span>SALESMAN:</span><div class="detail-fill" contenteditable="true"></div></div>
                     <div class="detail-row"><span>SALES NO:</span><div class="detail-fill" contenteditable="true"></div></div>
                 </div>
@@ -266,14 +178,21 @@
                 <tbody id="quoteBody"></tbody>
             </table>
 
-            <div style="text-align:right; margin-top:15px">
-                <strong style="font-size:22px;">TOTAL: PHP <span id="totalVal">0.00</span></strong>
+            <div class="total-container">
+                <div id="subtotalLabel">TOTAL SRP: PHP <span id="subTotalVal">0.00</span></div>
+                <div id="discountRow" class="discount-row">Less 5% (Cash): -PHP <span id="discountVal">0.00</span></div>
+                <div class="main-total"><strong><span id="finalLabel">TOTAL</span>: PHP <span id="totalVal">0.00</span></strong></div>
+                
+                <div class="no-print" style="margin-top:10px; font-size: 14px;">
+                    <input type="checkbox" id="applyDiscount" onchange="renderQuote()"> 
+                    <label for="applyDiscount" style="cursor:pointer; font-weight:bold; color:var(--sv-red)">Apply 5% Cash Discount</label>
+                </div>
             </div>
 
             <div class="notes-section">
                 <div class="notes-title">NOTES:</div>
                 * Quote validity is 7 days only from the date issued.<br>
-                * 1 Year Warranty on Parts and Services. No warranty on software/OS.<br>
+                * 1 Year Warranty on Parts and Services.<br>
                 * Cash price is valid for full cash payments only.<br>
                 * Prices and specifications subject to change without prior notice.
             </div>
@@ -290,14 +209,28 @@
     let inventory = JSON.parse(localStorage.getItem('svga_inv_v13')) || [];
     let quote = JSON.parse(localStorage.getItem('svga_quote_v13')) || [];
 
+    window.onload = function() {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('autoDate').innerText = new Date().toLocaleDateString('en-US', options);
+    };
+
+    function checkLogin() {
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u === "admin" && p === "svga2026") { 
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            document.getElementById('errMsg').style.display = 'block';
+        }
+    }
+
     function addItem() {
         const name = document.getElementById('invName').value;
         const price = document.getElementById('invPrice').value;
         const cat = document.getElementById('invCat').value;
         if(name && price) {
             inventory.push({ cat, name, price: parseFloat(price) });
-            save();
-            updateInv();
+            save(); updateInv();
             document.getElementById('invName').value = '';
             document.getElementById('invPrice').value = '';
         }
@@ -326,14 +259,11 @@
     function editItem(i) {
         let item = inventory[i];
         let newName = prompt("Edit Description:", item.name);
-        let newPrice = prompt("Edit SRP (Markup):", item.price);
-        
+        let newPrice = prompt("Edit SRP:", item.price);
         if (newName !== null && newPrice !== null) {
             inventory[i].name = newName;
             inventory[i].price = parseFloat(newPrice);
-            save();
-            updateInv();
-            renderQuote(); // Update quote as well if item is already listed
+            save(); updateInv(); renderQuote();
         }
     }
 
@@ -342,42 +272,57 @@
         const exist = quote.find(q => q.name === item.name);
         if(exist) exist.qty++;
         else quote.push({...item, qty: 1});
-        save();
-        renderQuote();
+        save(); renderQuote();
     }
 
     function renderQuote() {
         const b = document.getElementById('quoteBody');
         b.innerHTML = '';
-        let total = 0;
+        let subtotal = 0;
         quote.forEach((item, index) => {
             let rowTotal = item.qty * item.price;
-            total += rowTotal;
+            subtotal += rowTotal;
             b.innerHTML += `<tr>
-                <td>
-                    <div class="qty-controls">
-                        <button class="btn-qty no-print" onclick="updateQty(${index}, -1)">-</button>
-                        <span>${item.qty}</span>
-                        <button class="btn-qty no-print" onclick="updateQty(${index}, 1)">+</button>
-                    </div>
-                </td>
+                <td><div class="qty-controls">
+                    <button class="btn-qty no-print" onclick="updateQty(${index}, -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button class="btn-qty no-print" onclick="updateQty(${index}, 1)">+</button>
+                </div></td>
                 <td>[${item.cat}] ${item.name}</td>
                 <td>${item.price.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
                 <td>${rowTotal.toLocaleString(undefined,{minimumFractionDigits:2})}</td>
             </tr>`;
         });
-        document.getElementById('totalVal').innerText = total.toLocaleString(undefined,{minimumFractionDigits:2});
+
+        const isCash = document.getElementById('applyDiscount').checked;
+        const discountRow = document.getElementById('discountRow');
+        const finalLabel = document.getElementById('finalLabel');
+        const subtotalLabel = document.getElementById('subtotalLabel');
+
+        if(isCash) {
+            let discount = subtotal * 0.05;
+            let final = subtotal - discount;
+            discountRow.style.display = 'block';
+            subtotalLabel.style.display = 'block';
+            finalLabel.innerText = "CASH TOTAL";
+            document.getElementById('discountVal').innerText = discount.toLocaleString(undefined,{minimumFractionDigits:2});
+            document.getElementById('totalVal').innerText = final.toLocaleString(undefined,{minimumFractionDigits:2});
+        } else {
+            discountRow.style.display = 'none';
+            subtotalLabel.style.display = 'none';
+            finalLabel.innerText = "TOTAL SRP";
+            document.getElementById('totalVal').innerText = subtotal.toLocaleString(undefined,{minimumFractionDigits:2});
+        }
+        document.getElementById('subTotalVal').innerText = subtotal.toLocaleString(undefined,{minimumFractionDigits:2});
     }
 
     function updateQty(idx, change) {
         quote[idx].qty += change;
         if(quote[idx].qty <= 0) quote.splice(idx, 1);
-        save();
-        renderQuote();
+        save(); renderQuote();
     }
 
-    function clearQuote() { if(confirm("Clear current quotation?")) { quote = []; save(); renderQuote(); } }
-    
+    function clearQuote() { if(confirm("Clear list?")) { quote = []; save(); renderQuote(); } }
     function save() {
         localStorage.setItem('svga_inv_v13', JSON.stringify(inventory));
         localStorage.setItem('svga_quote_v13', JSON.stringify(quote));
@@ -386,6 +331,5 @@
     updateInv();
     renderQuote();
 </script>
-
 </body>
 </html>
