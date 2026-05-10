@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SVGA ULTIMATE v26</title>
+    <title>SVGA ULTIMATE v27</title>
     <style>
         :root { --sv-red: #e61e25; --sv-gold: #f1c40f; --sv-dark: #1a252f; }
         body { font-family: 'Arial Black', Gadget, sans-serif; margin: 20px; background-color: #f0f2f5; }
         
-        /* LOGIN BG */
+        /* 1. LOGIN OVERLAY FIX */
         #loginOverlay {
             position: fixed; inset: 0; 
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
@@ -17,9 +17,10 @@
         }
         .login-card { background: rgba(255, 255, 255, 0.95); padding: 45px; border-radius: 20px; width: 350px; text-align: center; border-top: 10px solid var(--sv-red); }
 
-        .container { max-width: 1600px; margin: auto; display: grid; grid-template-columns: 450px 1fr; gap: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-top: 8px solid var(--sv-red); position: relative; }
+        /* 2. ANTI-FLICKER: Naka-hide dapat 'to by default */
+        .container { display: none; max-width: 1600px; margin: auto; grid-template-columns: 450px 1fr; gap: 20px; }
         
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-top: 8px solid var(--sv-red); position: relative; }
         .logo-text { font-size: 75px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -3px; }
         .logo-sub { color: var(--sv-gold); font-size: 16px; font-weight: bold; letter-spacing: 5px; border-bottom: 10px solid var(--sv-red); display: inline-block; width: 320px; padding-bottom: 5px; }
 
@@ -29,17 +30,16 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { background: var(--sv-dark); color: white; padding: 10px; font-size: 11px; }
         td { padding: 10px; border: 1px solid #eee; font-size: 13px; font-weight: bold; }
-
         .edit-line { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; outline: none; }
 
-        @media print { .no-print { display: none !important; } .container { display: block; } .card { border: none; padding: 0; } }
+        @media print { .no-print { display: none !important; } .container { display: block !important; } .card { border: none; padding: 0; } }
     </style>
 </head>
 <body>
 
 <div id="loginOverlay">
     <div class="login-card">
-        <h1 style="color:var(--sv-red); font-size:45px; margin:0 0 20px 0;">SVGA QUOTATION SYSTEM</h1>
+        <h1 style="color:var(--sv-red); font-size:45px; margin:0 0 20px 0;">SVGA LOGIN</h1>
         <input type="text" id="user" placeholder="USERNAME">
         <input type="password" id="pass" placeholder="PASSWORD">
         <button onclick="login()" class="btn-blue" style="background:var(--sv-red)">LOG IN</button>
@@ -63,9 +63,8 @@
                 <option value="ALL">-- SHOW ALL ITEMS --</option>
                 <option>Processor</option><option>Motherboard</option><option>Memory</option>
                 <option>Storage</option><option>GPU</option><option>Power Supply</option>
-				<option>AIO</option><option>Air Cooler</option><option>Chassis Fan</option>
-				<option>Desktop case</option><option>Monitor</option>
-				
+                <option>AIO</option><option>Air Cooler</option><option>Chassis Fan</option>
+                <option>Desktop Case</option><option>Monitor</option>
             </select>
         </div>
 
@@ -128,7 +127,7 @@
             <b>NOTES:</b><br>
             * Quote validity: 7 days only from the date issued.<br>
             * 1 Year Warranty on Parts and Services. No warranty on software/OS.<br>
-			* Price and Specifications Subject To Change Without Prior Notice.
+            * Price and Specifications Subject To Change Without Prior Notice.
         </div>
 
         <div class="no-print" style="margin-top:20px;">
@@ -153,7 +152,11 @@
         const acc = db_accs.find(a => a.u.toLowerCase() === u && a.p === p);
         if(acc) {
             currentUser = acc.u;
+            // ITATAGO ANG LOGIN
             document.getElementById('loginOverlay').style.display = 'none';
+            // PAPAKITAIN ANG INTERFACE
+            document.querySelector('.container').style.display = 'grid';
+            
             document.getElementById('txtUser').innerText = acc.u;
             document.getElementById('bAddr').innerText = acc.addr;
             document.getElementById('bEmail').innerText = acc.email;
@@ -233,7 +236,9 @@
 
     function changeQ(i, v) { cart[i].q += v; if(cart[i].q <= 0) cart.splice(i,1); drawQuote(); }
     function clearQuote() { cart = []; drawQuote(); }
-    window.onload = () => { document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); };
+    window.onload = () => { 
+        document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); 
+    };
 </script>
 </body>
 </html>
