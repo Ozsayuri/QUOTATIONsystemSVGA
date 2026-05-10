@@ -2,92 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SVGA QUOTATION SYSTEM v19</title>
+    <title>SVGA ULTIMATE v26</title>
     <style>
         :root { --sv-red: #e61e25; --sv-gold: #f1c40f; --sv-dark: #1a252f; }
         body { font-family: 'Arial Black', Gadget, sans-serif; margin: 20px; background-color: #f0f2f5; }
-        .container { max-width: 1600px; margin: auto; display: grid; grid-template-columns: 450px 1fr; gap: 20px; }
         
-        /* CARD STYLE */
+        /* LOGIN BG */
+        #loginOverlay {
+            position: fixed; inset: 0; 
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover; background-position: center;
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-card { background: rgba(255, 255, 255, 0.95); padding: 45px; border-radius: 20px; width: 350px; text-align: center; border-top: 10px solid var(--sv-red); }
+
+        .container { max-width: 1600px; margin: auto; display: grid; grid-template-columns: 450px 1fr; gap: 20px; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-top: 8px solid var(--sv-red); position: relative; }
         
-        /* LOGO STYLE */
         .logo-text { font-size: 75px; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -3px; }
         .logo-sub { color: var(--sv-gold); font-size: 16px; font-weight: bold; letter-spacing: 5px; border-bottom: 10px solid var(--sv-red); display: inline-block; width: 320px; padding-bottom: 5px; }
 
-        /* INPUTS */
-        .inv-box { background: #fff3f3; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ffcccc; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; font-weight: bold; font-size: 14px; }
-        .btn-add-inv { width: 100%; background: #2980b9; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; font-weight: bold; }
+        .btn-blue { width: 100%; background: #2980b9; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        /* TABLE STYLE */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: var(--sv-dark); color: white; padding: 12px; font-size: 12px; text-transform: uppercase; }
-        td { padding: 12px; border: 1px solid #eee; font-size: 14px; font-weight: bold; }
+        th { background: var(--sv-dark); color: white; padding: 10px; font-size: 11px; }
+        td { padding: 10px; border: 1px solid #eee; font-size: 13px; font-weight: bold; }
 
-        /* QUOTATION HEADER */
-        .header-print { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .info-right { text-align: right; font-size: 13px; line-height: 1.5; font-family: 'Segoe UI', sans-serif; }
-        
-        /* EDITABLE LINE */
-        .edit-line { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; outline: none; padding-left: 5px; }
+        .edit-line { border-bottom: 1px solid #000; display: inline-block; min-width: 150px; outline: none; }
 
-        /* TOTALS */
-        .total-box { text-align: right; margin-top: 20px; border-top: 4px solid var(--sv-dark); padding-top: 15px; }
-        .total-grand { font-size: 35px; color: var(--sv-red); font-weight: 900; }
-
-        @media print {
-            .no-print { display: none !important; }
-            .container { display: block; }
-            .card { box-shadow: none; border: none; padding: 0; }
-            body { background: white; margin: 0; }
-        }
+        @media print { .no-print { display: none !important; } .container { display: block; } .card { border: none; padding: 0; } }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay" style="position:fixed; inset:0; background:white; display:flex; justify-content:center; align-items:center; z-index:9999;">
-    <div style="text-align:center; width:350px; background:#fff; padding:40px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.2);">
-        <h1 style="color:var(--sv-red); font-size:40px; margin-bottom:20px;">SVGA LOGIN</h1>
+<div id="loginOverlay">
+    <div class="login-card">
+        <h1 style="color:var(--sv-red); font-size:45px; margin:0 0 20px 0;">JEFFERSON BULAN CH</h1>
         <input type="text" id="user" placeholder="USERNAME">
         <input type="password" id="pass" placeholder="PASSWORD">
-        <button onclick="login()" style="width:100%; padding:15px; background:var(--sv-red); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:18px;">LOG IN</button>
+        <button onclick="login()" class="btn-blue" style="background:var(--sv-red)">LOG IN</button>
     </div>
 </div>
 
 <div class="container">
     <div class="card no-print">
-        <button onclick="location.reload()" style="position:absolute; top:10px; right:10px; cursor:pointer;">Logout</button>
-        <h2 style="color:var(--sv-dark); margin-top:0;">📦 INVENTORY</h2>
-        <div class="inv-box">
-            <select id="iCat"><option>Processor</option><option>Motherboard</option><option>Memory</option><option>Storage</option><option>GPU</option><option>Others</option></select>
-            <input type="text" id="iDesc" placeholder="ITEM DESCRIPTION">
-            <input type="number" id="iPrice" placeholder="SRP PRICE">
-            <button id="btnMain" onclick="saveItem()" class="btn-add-inv">ADD TO LIST</button>
+        <button onclick="location.reload()" style="position:absolute; top:10px; right:10px;">Logout</button>
+        
+        <div id="adminPanel" style="display:none; background:#fff3cd; padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid #ffeeba;">
+            <b style="color:#856404;">🛡️ ADMIN TOOLS</b><br>
+            <button onclick="addStaff()" style="margin-top:10px; cursor:pointer; padding:5px 10px; background:#856404; color:white; border:none; border-radius:5px;">+ Add Staff/Branch</button>
         </div>
+
+        <h2 style="margin-top:0;">📦 INVENTORY</h2>
+
+        <div style="background:#e9ecef; padding:10px; border-radius:8px; margin-bottom:10px;">
+            <label style="font-size:11px;">FILTER BY CATEGORY:</label>
+            <select id="filterCat" onchange="drawInv()">
+                <option value="ALL">-- SHOW ALL ITEMS --</option>
+                <option>Processor</option><option>Motherboard</option><option>Memory</option>
+                <option>Storage</option><option>GPU</option><option>Power Supply</option>
+				<option>AIO</option><option>Air Cooler</option><option>Chassis Fan</option>
+				<option>Desktop case</option><option>Monitor</option>
+				
+            </select>
+        </div>
+
+        <div id="invInput" style="display:none; background:#fff3f3; padding:15px; border-radius:10px; border:1px solid #ffcccc; margin-bottom:10px;">
+            <b style="font-size:12px; color:var(--sv-red);">INVENTORY ITEM:</b>
+            <select id="iCat"><option>Processor</option><option>Motherboard</option><option>Memory</option><option>Storage</option><option>GPU</option><option>Power Supply</option><option>AIO</option><option>Air Cooler</option><option>Chassis Fan</option><option>Desktop Case</option><option>Monitor</option></select>
+            <input type="text" id="iDesc" placeholder="Item Description">
+            <input type="number" id="iPrice" placeholder="SRP">
+            <button id="btnMain" onclick="saveItem()" class="btn-blue">Add to Inventory</button>
+        </div>
+
         <table style="font-size:11px;">
-            <thead><tr><th>CAT</th><th>ITEM</th><th>SRP</th><th>ACT</th></tr></thead>
+            <thead><tr><th>CAT</th><th>DESCRIPTION</th><th>SRP</th><th>ACTION</th></tr></thead>
             <tbody id="invBody"></tbody>
         </table>
     </div>
 
     <div class="card">
-        <div class="header-print">
+        <div style="display:flex; justify-content:space-between;">
             <div>
                 <h1 class="logo-text"><span style="color:var(--sv-gold)">SV</span><span style="color:var(--sv-red)">GA</span></h1>
                 <div class="logo-sub">SV GAMING ARENA</div>
             </div>
-            <div class="info-right">
-                <b style="color:var(--sv-red); font-size:18px;">SILICON VALLEY GAMING ARENA</b><br>
+            <div style="text-align:right; font-size:12px; font-family:sans-serif;">
+                <b style="color:var(--sv-red); font-size:16px;">SILICON VALLEY GAMING ARENA</b><br>
                 <span id="bAddr">3/F Cyberzone SM Southmall, Las Piñas City</span><br>
-                <span id="bEmail">svgasouthmall@gmail.com</span><br>
-                <span id="bContact">Viber: 09668861060 | Tel: 02-8332-9486</span>
+                <span id="bEmail">svgasouthmall@gmail.com</span> | <span id="bContact">Viber: 09668861060 | Tel: 02-8332-9486</span>
             </div>
         </div>
 
         <div style="border-top:3px solid #000; margin:15px 0;"></div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; font-size:14px; font-weight:bold;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; font-size:13px; font-weight:bold;">
             <div>
                 CUSTOMER: <span class="edit-line" contenteditable="true" style="min-width:250px;"></span><br>
                 ADDRESS: <span class="edit-line" contenteditable="true" style="min-width:268px;"></span>
@@ -99,51 +110,69 @@
         </div>
 
         <h2 style="text-align:center; color:var(--sv-red); font-size:30px; margin:20px 0 10px 0;">QUOTATION</h2>
-        
         <table>
-            <thead><tr><th style="width:60px;">QTY</th><th>DESCRIPTION</th><th style="width:130px;">PRICE</th><th style="width:130px;">TOTAL</th></tr></thead>
+            <thead><tr><th style="width:60px;">QTY</th><th>DESCRIPTION</th><th style="width:120px;">PRICE</th><th style="width:120px;">TOTAL</th></tr></thead>
             <tbody id="quoteBody"></tbody>
         </table>
 
-        <div class="total-box">
-            <div id="rowSRP" style="display:none; font-size:16px; color:#777;">SRP TOTAL: PHP <span id="valSRP">0.00</span></div>
-            <div class="total-grand"><span id="lblTotal">TOTAL SRP</span>: PHP <span id="valGrand">0.00</span></div>
+        <div style="text-align:right; margin-top:20px; border-top:4px solid var(--sv-dark); padding-top:10px;">
+            <div id="rowSRP" style="display:none; color:#777;">SRP TOTAL: PHP <span id="valSRP">0.00</span></div>
+            <div style="font-size:32px; color:var(--sv-red); font-weight:900;"><span id="lblTotal">TOTAL SRP</span>: PHP <span id="valGrand">0.00</span></div>
             <div class="no-print">
                 <input type="checkbox" id="cashMode" onchange="drawQuote()"> 
                 <label for="cashMode" style="color:red; cursor:pointer;">APPLY 5% CASH DISCOUNT</label>
             </div>
         </div>
 
-        <div style="margin-top:25px; font-size:11px; line-height:1.6; border-top:1px solid #ccc; padding-top:10px; font-family: sans-serif;">
+        <div style="margin-top:20px; font-size:11px; font-family:sans-serif; border-top:1px solid #ccc; padding-top:10px;">
             <b>NOTES:</b><br>
             * Quote validity: 7 days only from the date issued.<br>
             * 1 Year Warranty on Parts and Services. No warranty on software/OS.<br>
-            * Cash price is valid for full cash payments only.<br>
-            * Prices and specifications subject to change without prior notice.
+			* Price and Specifications Subject To Change Without Prior Notice.
         </div>
 
         <div class="no-print" style="margin-top:20px;">
             <button onclick="window.print()" style="width:100%; background:var(--sv-dark); color:white; padding:15px; border:none; border-radius:10px; font-weight:bold; font-size:18px; cursor:pointer;">🖨️ PRINT QUOTATION</button>
-            <button onclick="clearQuote()" style="width:100%; margin-top:10px; background:none; border:none; color:#999; cursor:pointer; font-weight:bold;">CLEAR LIST</button>
+            <button onclick="clearQuote()" style="width:100%; margin-top:5px; border:none; background:none; color:#999; cursor:pointer;">Clear List</button>
         </div>
     </div>
 </div>
 
 <script>
-    let db_accs = JSON.parse(localStorage.getItem('sv_accs_v19')) || [{u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}];
-    let db_inv = JSON.parse(localStorage.getItem('sv_inv_v19')) || [];
+    let db_accs = JSON.parse(localStorage.getItem('sv_accs_v26')) || [
+        {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}
+    ];
+    let db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || [];
     let cart = [];
     let editIdx = -1;
+    let currentUser = "";
 
     function login() {
-        const u = document.getElementById('user').value, p = document.getElementById('pass').value;
-        const acc = db_accs.find(a => a.u.toLowerCase() === u.toLowerCase() && a.p === p);
+        const u = document.getElementById('user').value.toLowerCase();
+        const p = document.getElementById('pass').value;
+        const acc = db_accs.find(a => a.u.toLowerCase() === u && a.p === p);
         if(acc) {
+            currentUser = acc.u;
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('txtUser').innerText = acc.u;
             document.getElementById('bAddr').innerText = acc.addr;
             document.getElementById('bEmail').innerText = acc.email;
             document.getElementById('bContact').innerText = acc.contact;
+            
+            if(u === 'admin') {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('invInput').style.display = 'block';
+            }
+            drawInv();
+        } else { alert("Login failed!"); }
+    }
+
+    function addStaff() {
+        const u = prompt("Username:"), p = prompt("Password:"), ad = prompt("Address:"), em = prompt("Email:"), co = prompt("Contact:");
+        if(u && p) {
+            db_accs.push({u, p, addr:ad, email:em, contact:co});
+            localStorage.setItem('sv_accs_v26', JSON.stringify(db_accs));
+            alert("Branch Account Created!");
         }
     }
 
@@ -151,26 +180,34 @@
         const c = document.getElementById('iCat').value, d = document.getElementById('iDesc').value, p = document.getElementById('iPrice').value;
         if(!d || !p) return;
         if(editIdx === -1) db_inv.push({c, d, p:parseFloat(p)});
-        else { db_inv[editIdx] = {c, d, p:parseFloat(p)}; editIdx = -1; document.getElementById('btnMain').innerText = "ADD TO LIST"; document.getElementById('btnMain').style.background = "#2980b9"; }
-        localStorage.setItem('sv_inv_v19', JSON.stringify(db_inv));
-        drawInv(); document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = '';
+        else { db_inv[editIdx] = {c, d, p:parseFloat(p)}; editIdx = -1; document.getElementById('btnMain').innerText = "Add to Inventory"; }
+        localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
+        drawInv(); 
+        document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = '';
     }
 
     function drawInv() {
         const b = document.getElementById('invBody'); b.innerHTML = '';
+        const isAdmin = (currentUser === 'admin');
+        const fCat = document.getElementById('filterCat').value;
+
         db_inv.forEach((item, i) => {
-            b.innerHTML += `<tr><td>${item.c}</td><td>${item.d}</td><td>${item.p.toLocaleString()}</td><td>
-                <button onclick="addToCart(${i})" style="background:#27ae60; color:white; border:none; padding:4px; border-radius:4px; cursor:pointer;">ADD</button>
-                <button onclick="editItem(${i})" style="background:#f39c12; color:white; border:none; padding:4px; border-radius:4px; cursor:pointer;">✎</button>
-                <button onclick="db_inv.splice(${i},1);localStorage.setItem('sv_inv_v19',JSON.stringify(db_inv));drawInv();" style="background:#e74c3c; color:white; border:none; padding:4px; border-radius:4px; cursor:pointer;">X</button>
-            </td></tr>`;
+            if(fCat !== "ALL" && item.c !== fCat) return;
+
+            let adminBtns = isAdmin ? `
+                <button onclick="editItem(${i})" style="background:#f39c12; color:white; border:none; padding:3px 6px; border-radius:4px; cursor:pointer;">✎</button>
+                <button onclick="db_inv.splice(${i},1);localStorage.setItem('sv_inv_v26',JSON.stringify(db_inv));drawInv();" style="background:#e74c3c; color:white; border:none; padding:3px 6px; border-radius:4px; cursor:pointer;">X</button>
+            ` : '';
+
+            b.innerHTML += `<tr><td>${item.c}</td><td>${item.d}</td><td>${item.p.toLocaleString()}</td>
+                <td><button onclick="addToCart(${i})" style="background:#27ae60; color:white; border:none; padding:3px 6px; border-radius:4px; cursor:pointer;">Add</button>${adminBtns}</td></tr>`;
         });
     }
 
     function editItem(i) {
         editIdx = i; const item = db_inv[i];
         document.getElementById('iCat').value = item.c; document.getElementById('iDesc').value = item.d; document.getElementById('iPrice').value = item.p;
-        document.getElementById('btnMain').innerText = "UPDATE ITEM"; document.getElementById('btnMain').style.background = "#f39c12";
+        document.getElementById('btnMain').innerText = "Update Item";
     }
 
     function addToCart(i) {
@@ -182,8 +219,8 @@
     function drawQuote() {
         const b = document.getElementById('quoteBody'); b.innerHTML = ''; let sum = 0;
         cart.forEach((item, i) => {
-            let rowTotal = item.q * item.p; sum += rowTotal;
-            b.innerHTML += `<tr><td style="text-align:center"><button class="no-print" onclick="changeQ(${i},-1)">-</button> ${item.q} <button class="no-print" onclick="changeQ(${i},1)">+</button></td><td>[${item.c}] ${item.d}</td><td style="text-align:right">${item.p.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td style="text-align:right">${rowTotal.toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>`;
+            let row = item.q * item.p; sum += row;
+            b.innerHTML += `<tr><td style="text-align:center"><button class="no-print" onclick="changeQ(${i},-1)">-</button> ${item.q} <button class="no-print" onclick="changeQ(${i},1)">+</button></td><td>[${item.c}] ${item.d}</td><td style="text-align:right">${item.p.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td style="text-align:right">${row.toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>`;
         });
         const cash = document.getElementById('cashMode').checked;
         if(cash) {
@@ -196,11 +233,7 @@
 
     function changeQ(i, v) { cart[i].q += v; if(cart[i].q <= 0) cart.splice(i,1); drawQuote(); }
     function clearQuote() { cart = []; drawQuote(); }
-
-    window.onload = () => { 
-        document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
-        drawInv(); 
-    };
+    window.onload = () => { document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); };
 </script>
 </body>
 </html>
