@@ -17,7 +17,7 @@
         }
         .login-card { background: rgba(255, 255, 255, 0.95); padding: 45px; border-radius: 20px; width: 350px; text-align: center; border-top: 10px solid var(--sv-red); }
 
-        /* 2. ANTI-FLICKER: Naka-hide dapat 'to by default */
+        /* 2. ANTI-FLICKER */
         .container { display: none; max-width: 1600px; margin: auto; grid-template-columns: 450px 1fr; gap: 20px; }
         
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border-top: 8px solid var(--sv-red); position: relative; }
@@ -142,23 +142,29 @@
         {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}
     ];
     
-    let db_inv = []; 
+    // Kunin muna agad kung ano ang huling listahan sa computer para anti-bura
+    let db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || []; 
     let cart = [];
     let editIdx = -1;
     let currentUser = "";
 
-    const CLOUD_URL = "https://api.npoint.io/08cb7a79ec36437d7a18"; 
+    // 🔒 FRESH AT GUMA-GANA NANG LINK:
+    const CLOUD_URL = "https://api.npoint.io/0f4024f0c868cc9035ee"; 
 
     async function loadCloudInv() {
         try {
             const res = await fetch(CLOUD_URL);
             if (res.ok) {
                 const data = await res.json();
-                db_inv = data || [];
+                // Kung may bagong listahan sa cloud, i-update ang browser database natin
+                if(data && data.length > 0) {
+                    db_inv = data;
+                    localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
+                }
                 drawInv();
             }
         } catch (e) {
-            db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || [];
+            console.log("Cloud read error, gamit muna ang local backup.");
             drawInv();
         }
     }
@@ -172,7 +178,7 @@
                 body: JSON.stringify(db_inv)
             });
         } catch (e) {
-            console.log("Cloud sync temporary error.");
+            console.log("Cloud sync error.");
         }
     }
 
@@ -195,6 +201,8 @@
                 document.getElementById('invInput').style.display = 'block';
             }
             
+            // I-render kung ano munang naitabi para hindi maging blangko habang kumokonekta sa cloud
+            drawInv();
             loadCloudInv();
         } else { alert("Login failed!"); }
     }
@@ -212,23 +220,11 @@
         const c = document.getElementById('iCat').value, d = document.getElementById('iDesc').value, p = document.getElementById('iPrice').value;
         if(!d || !p) return;
         
-        // Pagse-save sa local array
-        if(editIdx === -1) {
-            db_inv.push({c, d, p:parseFloat(p)});
-        } else { 
-            db_inv[editIdx] = {c, d, p:parseFloat(p)}; 
-            editIdx = -1; 
-            document.getElementById('btnMain').innerText = "Add to Inventory"; 
-        }
+        if(editIdx === -1) db_inv.push({c, d, p:parseFloat(p)});
+        else { db_inv[editIdx] = {c, d, p:parseFloat(p)}; editIdx = -1; document.getElementById('btnMain').innerText = "Add to Inventory"; }
         
-        // FIX: I-render agad ang UI gamit ang binagong local array para mabilis ang visual feedback
         drawInv(); 
-        
-        // I-clear ang form inputs
-        document.getElementById('iDesc').value = ''; 
-        document.getElementById('iPrice').value = '';
-        
-        // I-upload sa cloud sa background. INALIS ANG loadCloudInv() para hindi ma-overwrite ng luma.
+        document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = '';
         await saveCloudInv();
     }
 
@@ -253,8 +249,8 @@
     async function deleteItem(i) {
         if(confirm("Sigurado ka na papatayin mo itong item na 'to sa imbentaryo natin?")) {
             db_inv.splice(i,1);
-            drawInv(); // I-render agad ang natitirang local list
-            await saveCloudInv(); // I-update ang cloud backup, TINANGGAL din ang loadCloudInv() dito
+            drawInv();
+            await saveCloudInv();
         }
     }
 
