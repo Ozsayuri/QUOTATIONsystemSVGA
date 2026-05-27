@@ -142,16 +142,16 @@
         {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}
     ];
     
-   
+    // Binago lang para kumuha sa cloud imbis na local static array lang
     let db_inv = []; 
     let cart = [];
     let editIdx = -1;
     let currentUser = "";
 
-    
+    // Ginamit ko ang npoint.io (isang free JSON storage platform na walang kailangang token) para mag-sync ang dalawang PC niyo
     const CLOUD_URL = "https://api.npoint.io/08cb7a79ec36437d7a18"; 
 
-    
+    // Bagong function para hatakin ang live stocks galing sa kabila tuwing mag-l-login o mag-a-add ng item
     async function loadCloudInv() {
         try {
             const res = await fetch(CLOUD_URL);
@@ -161,13 +161,13 @@
                 drawInv();
             }
         } catch (e) {
-            
+            // Kung sakaling walang internet, babalik muna sa local backup para hindi masira ang system niyo
             db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || [];
             drawInv();
         }
     }
 
-   
+    // Bagong function para i-upload sa ulap ang bagong input para makita agad sa kabilang PC
     async function saveCloudInv() {
         localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
         try {
@@ -200,7 +200,7 @@
                 document.getElementById('invInput').style.display = 'block';
             }
             
-            
+            // Dito hahatakin ang live data pagkapasok na pagkapasok
             loadCloudInv();
         } else { alert("Login failed!"); }
     }
@@ -220,11 +220,11 @@
         if(editIdx === -1) db_inv.push({c, d, p:parseFloat(p)});
         else { db_inv[editIdx] = {c, d, p:parseFloat(p)}; editIdx = -1; document.getElementById('btnMain').innerText = "Add to Inventory"; }
         
-       
+        // Imbis na local storage lang, isasabay natin sa cloud save
         drawInv(); 
         document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = '';
         await saveCloudInv();
-        loadCloudInv(); 
+        loadCloudInv(); // Siguraduhing updated ang view
     }
 
     function drawInv() {
@@ -245,7 +245,7 @@
         });
     }
 
-    
+    // Ginalaw ng bahagya para maging sync din kapag nagbura si Admin ng item sa listahan
     async function deleteItem(i) {
         db_inv.splice(i,1);
         drawInv();
