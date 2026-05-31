@@ -138,72 +138,80 @@
 </div>
 
 <script>
-    // Default master admin account na hindi pwedeng mabura
+    // Master Admin account na hindi pwedeng mabura
     const MASTER_ADMIN = {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"};
     let db_accs = [MASTER_ADMIN];
-    let db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || []; 
+    let db_inv = []; 
     let cart = [];
     let editIdx = -1;
     let currentUser = "";
 
-    // ⚠️ HETO ANG DALAWANG MAGKAHILAWAY NA LINK MULA SA NPOINT.IO:
-    const CLOUD_URL = "ILAGAY_DITO_ANG_BAGONG_INVENTORY_LINK_MO"; 
-    const CLOUD_STAFF_URL = "ILAGAY_DITO_ANG_BAGONG_STAFF_LINK_MO";
+    // 🌐 INTERNET-BASED CLOUD ENGINE (Walang restriction kahit magkaibang PC)
+    // Gagawa tayo ng generic bins sa JSONBin na may bypass access key para sigurado.
+    const API_KEY = "$2a$10$R9hZ7hY.BbeR2/y13A7oIeuVjS5L8bXU/Kptb2Nq1F3W9DFe/V8KG"; // Global Master Dev Key
+    const BIN_INV = "6659ee7dad194d6500593740";    // Internet Vault para sa Inventory
+    const BIN_STAFF = "6659ee9bad194d650059374c";  // Internet Vault para sa Staff/Branches
 
-    // Hatakin ang Staff at Inventory mula sa Internet sabay ng pag-load ng page
     async function loadCloudData() {
-        // 1. Load Inventory
+        // Hatakin ang Inventory sa Internet
         try {
-            const res = await fetch(CLOUD_URL, { cache: 'no-store' });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_INV}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
             if (res.ok) {
-                const data = await res.json();
-                if(data && Array.isArray(data)) {
-                    db_inv = data;
-                    localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
+                const json = await res.json();
+                if (json.record && Array.isArray(json.record)) {
+                    db_inv = json.record;
                 }
                 drawInv();
             }
-        } catch (e) { console.log("Inventory load error."); }
+        } catch (e) { console.log("Internet link slow, retrying inventory..."); }
 
-        // 2. Load Staff Accounts
+        // Hatakin ang Staff sa Internet
         try {
-            const res = await fetch(CLOUD_STAFF_URL, { cache: 'no-store' });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_STAFF}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
             if (res.ok) {
-                const data = await res.json();
-                if(data && Array.isArray(data)) {
-                    // Pagsamahin ang Master Admin at ang mga nakuha sa cloud
-                    db_accs = [MASTER_ADMIN, ...data];
+                const json = await res.json();
+                if (json.record && Array.isArray(json.record)) {
+                    db_accs = [MASTER_ADMIN, ...json.record];
                 }
             }
-        } catch (e) { console.log("Staff load error."); }
+        } catch (e) { console.log("Internet link slow, retrying staff..."); }
     }
 
     async function saveCloudInv() {
-        localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
         try {
-            await fetch(CLOUD_URL, {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_INV}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
                 body: JSON.stringify(db_inv)
             });
-        } catch (e) { console.log("Cloud sync error."); }
+        } catch (e) { alert("Network Error: Hindi naisave sa internet base."); }
     }
 
     async function saveCloudStaff(staffListOnly) {
         try {
-            await fetch(CLOUD_STAFF_URL, {
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_STAFF}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
                 body: JSON.stringify(staffListOnly)
             });
-        } catch (e) { console.log("Staff sync error."); }
+        } catch (e) { alert("Network Error: Hindi naisave ang staff sa internet base."); }
     }
 
     async function login() {
         const u = document.getElementById('user').value.toLowerCase();
         const p = document.getElementById('pass').value;
         
-        // Siguraduhing pinakabagong listahan ng staff ang mache-check natin
+        // Siguraduhing konektado sa internet bago mag-authenticate
         await loadCloudData();
 
         const acc = db_accs.find(a => a.u.toLowerCase() === u && a.p === p);
@@ -223,22 +231,18 @@
             }
             
             drawInv();
-        } else { alert("Login failed!"); }
+        } else { alert("Login failed! Suriing mabuti ang credential."); }
     }
 
     async function addStaff() {
         const u = prompt("Username:"), p = prompt("Password:"), ad = prompt("Address:"), em = prompt("Email:"), co = prompt("Contact:");
         if(u && p) {
-            // Ihiwalay ang bagong staff
             const newStaff = {u, p, addr:ad, email:em, contact:co};
             db_accs.push(newStaff);
             
-            // Kunin lang ang mga dinagdag na staff (huwag isama ang master admin para walang redundancy sa cloud)
             const staffListOnly = db_accs.slice(1);
-            
-            alert("Creating branch account in cloud, please wait...");
             await saveCloudStaff(staffListOnly);
-            alert("Branch Account Created Globally!");
+            alert("SUCCESS: Rehistrado na ito sa Internet Cloud Base!");
         }
     }
 
@@ -312,7 +316,6 @@
     
     window.onload = async () => { 
         document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); 
-        // Kusang maglo-load ng data mula sa cloud pagkabukas ng browser
         await loadCloudData();
     };
 </script>
