@@ -138,7 +138,6 @@
 </div>
 
 <script>
-    // Master Admin account na hindi pwedeng mabura
     const MASTER_ADMIN = {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"};
     let db_accs = [MASTER_ADMIN];
     let db_inv = []; 
@@ -146,14 +145,27 @@
     let editIdx = -1;
     let currentUser = "";
 
-    // 🌐 INTERNET-BASED CLOUD ENGINE (Walang restriction kahit magkaibang PC)
-    // Gagawa tayo ng generic bins sa JSONBin na may bypass access key para sigurado.
-    const API_KEY = "$2a$10$R9hZ7hY.BbeR2/y13A7oIeuVjS5L8bXU/Kptb2Nq1F3W9DFe/V8KG"; // Global Master Dev Key
-    const BIN_INV = "6659ee7dad194d6500593740";    // Internet Vault para sa Inventory
-    const BIN_STAFF = "6659ee9bad194d650059374c";  // Internet Vault para sa Staff/Branches
+    // 🌐 GLOBAL CLOUD DATABASE ENGINE
+    const API_KEY = "$2a$10$R9hZ7hY.BbeR2/y13A7oIeuVjS5L8bXU/Kptb2Nq1F3W9DFe/V8KG"; 
+    const BIN_INV = "6659ee7dad194d6500593740";    
+    const BIN_STAFF = "6659ee9bad194d650059374c";  
 
-    async function loadCloudData() {
-        // Hatakin ang Inventory sa Internet
+    // Ginawa nating ganap na hiwalay ang pag-load para kontrolado ang timing
+    async function fetchAllStaff() {
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_STAFF}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
+            if (res.ok) {
+                const json = await res.json();
+                if (json.record && Array.isArray(json.record)) {
+                    db_accs = [MASTER_ADMIN, ...json.record];
+                }
+            }
+        } catch (e) { console.log("Staff server delay."); }
+    }
+
+    async function loadCloudInventory() {
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_INV}/latest`, {
                 headers: { "X-Master-Key": API_KEY }
@@ -165,20 +177,7 @@
                 }
                 drawInv();
             }
-        } catch (e) { console.log("Internet link slow, retrying inventory..."); }
-
-        // Hatakin ang Staff sa Internet
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_STAFF}/latest`, {
-                headers: { "X-Master-Key": API_KEY }
-            });
-            if (res.ok) {
-                const json = await res.json();
-                if (json.record && Array.isArray(json.record)) {
-                    db_accs = [MASTER_ADMIN, ...json.record];
-                }
-            }
-        } catch (e) { console.log("Internet link slow, retrying staff..."); }
+        } catch (e) { console.log("Inventory server delay."); }
     }
 
     async function saveCloudInv() {
@@ -191,7 +190,7 @@
                 },
                 body: JSON.stringify(db_inv)
             });
-        } catch (e) { alert("Network Error: Hindi naisave sa internet base."); }
+        } catch (e) { alert("Network Error: Hindi naisave sa cloud base."); }
     }
 
     async function saveCloudStaff(staffListOnly) {
@@ -204,15 +203,15 @@
                 },
                 body: JSON.stringify(staffListOnly)
             });
-        } catch (e) { alert("Network Error: Hindi naisave ang staff sa internet base."); }
+        } catch (e) { alert("Network Error: Hindi naisave ang staff."); }
     }
 
     async function login() {
         const u = document.getElementById('user').value.toLowerCase();
         const p = document.getElementById('pass').value;
         
-        // Siguraduhing konektado sa internet bago mag-authenticate
-        await loadCloudData();
+        // 1. Hatakin muna ang pinakabagong listahan ng accounts sa cloud bago pumasok
+        await fetchAllStaff();
 
         const acc = db_accs.find(a => a.u.toLowerCase() === u && a.p === p);
         if(acc) {
@@ -230,8 +229,9 @@
                 document.getElementById('invInput').style.display = 'block';
             }
             
-            drawInv();
-        } else { alert("Login failed! Suriing mabuti ang credential."); }
+            // 2. Kapag ligtas nang nakapasok ang user, tsaka pa lang natin ikakarga ang mga items mula sa internet
+            await loadCloudInventory();
+        } else { alert("Login failed! Suriin ang iyong mga credentials."); }
     }
 
     async function addStaff() {
@@ -242,7 +242,7 @@
             
             const staffListOnly = db_accs.slice(1);
             await saveCloudStaff(staffListOnly);
-            alert("SUCCESS: Rehistrado na ito sa Internet Cloud Base!");
+            alert("SUCCESS: Registered Globally!");
         }
     }
 
@@ -252,6 +252,8 @@
         
         if(editIdx === -1) db_inv.push({c, d, p:parseFloat(p)});
         else { db_inv[editIdx] = {c, d, p:parseFloat(p)}; editIdx = -1; document.getElementById('btnMain').innerText = "Add to Inventory"; }
+        
+        document.getElementById('filterCat').value = "ALL";
         
         drawInv(); 
         document.getElementById('iDesc').value = ''; document.getElementById('iPrice').value = '';
@@ -314,9 +316,8 @@
     function changeQ(i, v) { cart[i].q += v; if(cart[i].q <= 0) cart.splice(i,1); drawQuote(); }
     function clearQuote() { cart = []; drawQuote(); }
     
-    window.onload = async () => { 
+    window.onload = () => { 
         document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); 
-        await loadCloudData();
     };
 </script>
 </body>
