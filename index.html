@@ -138,19 +138,21 @@
 </div>
 
 <script>
-    let db_accs = JSON.parse(localStorage.getItem('sv_accs_v26')) || [
-        {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}
-    ];
-    
+    // Default master admin account na hindi pwedeng mabura
+    const MASTER_ADMIN = {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"};
+    let db_accs = [MASTER_ADMIN];
     let db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || []; 
     let cart = [];
     let editIdx = -1;
     let currentUser = "";
 
-    // ⚠️ PALITAN MO ITONG LINK SA BABA NG BAGONG GAWANG LINK MULA SA NPOINT.IO:
-    const CLOUD_URL = "ILAGAY_DITO_ANG_BAGONG_LINK_MO"; 
+    // ⚠️ HETO ANG DALAWANG MAGKAHILAWAY NA LINK MULA SA NPOINT.IO:
+    const CLOUD_URL = "ILAGAY_DITO_ANG_BAGONG_INVENTORY_LINK_MO"; 
+    const CLOUD_STAFF_URL = "ILAGAY_DITO_ANG_BAGONG_STAFF_LINK_MO";
 
-    async function loadCloudInv() {
+    // Hatakin ang Staff at Inventory mula sa Internet sabay ng pag-load ng page
+    async function loadCloudData() {
+        // 1. Load Inventory
         try {
             const res = await fetch(CLOUD_URL, { cache: 'no-store' });
             if (res.ok) {
@@ -161,10 +163,19 @@
                 }
                 drawInv();
             }
-        } catch (e) {
-            console.log("Cloud read error, gamit muna ang local backup.");
-            drawInv();
-        }
+        } catch (e) { console.log("Inventory load error."); }
+
+        // 2. Load Staff Accounts
+        try {
+            const res = await fetch(CLOUD_STAFF_URL, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if(data && Array.isArray(data)) {
+                    // Pagsamahin ang Master Admin at ang mga nakuha sa cloud
+                    db_accs = [MASTER_ADMIN, ...data];
+                }
+            }
+        } catch (e) { console.log("Staff load error."); }
     }
 
     async function saveCloudInv() {
@@ -175,14 +186,26 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(db_inv)
             });
-        } catch (e) {
-            console.log("Cloud sync error.");
-        }
+        } catch (e) { console.log("Cloud sync error."); }
     }
 
-    function login() {
+    async function saveCloudStaff(staffListOnly) {
+        try {
+            await fetch(CLOUD_STAFF_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(staffListOnly)
+            });
+        } catch (e) { console.log("Staff sync error."); }
+    }
+
+    async function login() {
         const u = document.getElementById('user').value.toLowerCase();
         const p = document.getElementById('pass').value;
+        
+        // Siguraduhing pinakabagong listahan ng staff ang mache-check natin
+        await loadCloudData();
+
         const acc = db_accs.find(a => a.u.toLowerCase() === u && a.p === p);
         if(acc) {
             currentUser = acc.u;
@@ -200,16 +223,22 @@
             }
             
             drawInv();
-            loadCloudInv();
         } else { alert("Login failed!"); }
     }
 
-    function addStaff() {
+    async function addStaff() {
         const u = prompt("Username:"), p = prompt("Password:"), ad = prompt("Address:"), em = prompt("Email:"), co = prompt("Contact:");
         if(u && p) {
-            db_accs.push({u, p, addr:ad, email:em, contact:co});
-            localStorage.setItem('sv_accs_v26', JSON.stringify(db_accs));
-            alert("Branch Account Created!");
+            // Ihiwalay ang bagong staff
+            const newStaff = {u, p, addr:ad, email:em, contact:co};
+            db_accs.push(newStaff);
+            
+            // Kunin lang ang mga dinagdag na staff (huwag isama ang master admin para walang redundancy sa cloud)
+            const staffListOnly = db_accs.slice(1);
+            
+            alert("Creating branch account in cloud, please wait...");
+            await saveCloudStaff(staffListOnly);
+            alert("Branch Account Created Globally!");
         }
     }
 
@@ -281,8 +310,10 @@
     function changeQ(i, v) { cart[i].q += v; if(cart[i].q <= 0) cart.splice(i,1); drawQuote(); }
     function clearQuote() { cart = []; drawQuote(); }
     
-    window.onload = () => { 
+    window.onload = async () => { 
         document.getElementById('txtDate').innerText = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'}); 
+        // Kusang maglo-load ng data mula sa cloud pagkabukas ng browser
+        await loadCloudData();
     };
 </script>
 </body>
