@@ -142,23 +142,20 @@
         {u:"admin", p:"svga2026", addr:"3/F Cyberzone SM Southmall, Las Piñas City", email:"svgasouthmall@gmail.com", contact:"Viber: 09668861060 | Tel: 02-8332-9486"}
     ];
     
-    // Kunin muna agad kung ano ang huling listahan sa computer para anti-bura
     let db_inv = JSON.parse(localStorage.getItem('sv_inv_v26')) || []; 
     let cart = [];
     let editIdx = -1;
     let currentUser = "";
 
-    // 🔒 FRESH AT GUMA-GANA NANG LINK:
-    const CLOUD_URL = "https://api.npoint.io/0f4024f0c868cc9035ee"; 
+    // ⚠️ PALITAN MO ITONG LINK SA BABA NG BAGONG GAWANG LINK MULA SA NPOINT.IO:
+    const CLOUD_URL = "ILAGAY_DITO_ANG_BAGONG_LINK_MO"; 
 
     async function loadCloudInv() {
         try {
-            // FIX: Idinagdag ang cache option para hindi mag-stock ang lumang data sa browser ng ibang PC
             const res = await fetch(CLOUD_URL, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
-                // Kung may bagong listahan sa cloud, i-update ang browser database natin
-                if(data && data.length > 0) {
+                if(data && Array.isArray(data)) {
                     db_inv = data;
                     localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
                 }
@@ -173,7 +170,6 @@
     async function saveCloudInv() {
         localStorage.setItem('sv_inv_v26', JSON.stringify(db_inv));
         try {
-            // FIX: Pinalitan ang POST ng PUT para pumasok at mag-overwrite talaga sa npoint system ang listahan mo
             await fetch(CLOUD_URL, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -203,7 +199,6 @@
                 document.getElementById('invInput').style.display = 'block';
             }
             
-            // I-render kung ano munang naitabi para hindi maging blangko habang kumokonekta sa cloud
             drawInv();
             loadCloudInv();
         } else { alert("Login failed!"); }
